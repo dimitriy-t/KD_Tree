@@ -47,7 +47,7 @@ TEST( KDNode, TestZero )
 //    ASSERT_TRUE( zero.equals( zeroAssign ) );
 }
 
-TEST( KDNode< int >, TestUninitializedState )
+TEST( KDNode, TestUninitializedState )
 {
     std::cout << "Implement me!" << std::endl;
     ASSERT_TRUE( false );
