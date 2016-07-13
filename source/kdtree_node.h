@@ -34,7 +34,7 @@ public:
         // copy constructor, calls copy().
 
     virtual ~KDNode();
-    // destructor
+        // destructor
 
     // OPERATORS
     KDNode& operator=( const KDNode& other );
