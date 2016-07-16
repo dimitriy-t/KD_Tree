@@ -14,12 +14,9 @@ namespace {
 // TEST FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
 
-TEST( KDNode, TestZero )
-{
-    std::cout << "Implement me!" << std::endl;
-    ASSERT_TRUE( false );
-
-    // initial object
+//TEST( KDNode, TestZero )
+//{
+//    // initial object
 //    KDNode< int > zero;
 //
 //    ASSERT_TRUE( zero == zero );
@@ -45,23 +42,17 @@ TEST( KDNode, TestZero )
 //    ASSERT_TRUE( zero == zeroAssign );
 //    ASSERT_TRUE( !( zero != zeroAssign ) );
 //    ASSERT_TRUE( zero.equals( zeroAssign ) );
-}
+//}
 
-TEST( KDNode, TestUninitializedState )
-{
-    std::cout << "Implement me!" << std::endl;
-    ASSERT_TRUE( false );
-
+//TEST( KDNode, TestUninitializedState )
+//{
 //    KDNode< int > dummyNode;
 //    // Because horizontally aligned code blocks are just better!
 //    ASSERT_EQ( dummyNode.minNumThreads()                     , 0 );
-}
+//}
 
-TEST( KDNode, Sanity )
-{
-    std::cout << "Implement me!" << std::endl;
-    ASSERT_TRUE( false );
-
+//TEST( KDNode, Sanity )
+//{
 //    KDNode< int > dummyNode;
 //
 //    ASSERT_TRUE( dummyNode.init( "test_data/validKDNode< int >.cfg" ) );
@@ -83,12 +74,10 @@ TEST( KDNode, Sanity )
 //            Defaults::MGBUTRG_PORTMUX_DEFAULT_INSTANCE_NAME );
 //
 //    std::cout << dummyNode << std::endl;
-}
+//}
 
-TEST( KDNode, TestPrint )
-{
-    std::cout << "Implement me!" << std::endl;
-    ASSERT_TRUE( false );
+//TEST( KDNode, TestPrint )
+//{
 //    KDNode< int > dummyNode;
 //
 //    ASSERT_EQ( dummyNode.minNumThreads()                     , 0 );
@@ -110,6 +99,6 @@ TEST( KDNode, TestPrint )
 //    ASSERT_TRUE( dummyNode.init( "test_data/validKDNode< int >.cfg" ) );
 //
 //    std::cout << dummyNode << std::endl;
-}
+//}
 
 } // namespace

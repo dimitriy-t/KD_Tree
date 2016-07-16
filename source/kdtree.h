@@ -1,10 +1,9 @@
 #ifndef KDTREE_H
 #define KDTREE_H
 
-#include <vector>
-#include <set>
 #include <memory>
 
+#include "kdtree_types.h"
 #include "kdtree_node.h"
 
 
@@ -14,11 +13,7 @@
 
 namespace datastructures {
 
-template < typename T >
-using Point = std::vector< T >;
 
-template < typename T >
-using Points = std::set< Point < T > >;
 
 template< typename T >
 class KDTree {
@@ -32,8 +27,8 @@ public:
         // bisection
         // Calls build() helper
 
-    KDTree( const Points< T >& points );
-        // constructor, throws in case points are of different length
+    KDTree( const Types::Points< T >& points );
+        // Constructor, throws in case points are of different length
         // Calls build() helper
 
     ~KDTree();
@@ -41,7 +36,7 @@ public:
 
     // OPERATORS
     KDTree& operator=( const KDTree< T >& other );
-        // assignment operator. Calls copy; do this in child classes
+        // Assignment operator. Calls copy; do this in child classes
         // when overloaded.
         // Note that this operator will copy the the points contained within
         // the provided tree, yet will build its own bisecting structure of the
@@ -49,42 +44,48 @@ public:
         // Calls build() helper
 
     bool operator==( const KDTree< T >& other ) const;
-        // equality. Calls equals, do this in child classes
+        // Equality. Calls equals, do this in child classes
         // when overloaded.
         // Calls build() helper
 
     bool operator!=( const KDTree< T >& other ) const;
-        // non-equality.  Calls equals, do this in child classes
+        // Non-equality.  Calls equals, do this in child classes
         // when overloaded.
 
     // PRIMARY INTERFACE
     //TODO: throw?
     void serialize( const std::string& filename ) const;
-        // writes the tree to the provided file location
+        // Writes the tree to the provided file location
 
     //TODO: throw?
     void deserialize( const std::string& filename );
-        // loads the contents of the data via the contents of the file
+        // Loads the contents of the data via the contents of the file
 
-    Point< T > nearestPoint( const Point< T > ) const;
-        // returns the closes point in a tree to the point provided
-        // in case the tree is empty - point itself is returned
+    const Types::Point< T >& nearestPoint(
+            const Types::Point< T >& point ) const;
+        // Returns const ref the closes point in a tree to the point provided
+        // in case the tree is empty - point itself is returned.
+
+    const Types::Points< T >& points() const;
+        // Returns the set of points represented by this KDTree. Used
+        // primarily for testing.
 
 protected:
-    virtual Point< T > chooseBestSplit( Points< T > points,
-                                        const size_t plane );
-        // to be overloaded by children when extending the vanilla KDTree
+    virtual const Types::Point< T >& chooseBestSplit(
+            const Types::Points< T >& points,
+            const size_t plane ) const;
+        // To be overloaded by children when extending the vanilla KDTree
         // Picks the best possible point out of the provided set in splitting
         // the tree in two for a given plane
         // 0 <= plane < cardinality of point space
 
     // MANIPULATORS
     void copy( const KDTree& other );
-        // copies the value of other into this
+        // Copies the value of other into this
 
     // ACCESSORS
     bool equals( const KDTree& other ) const;
-        // worker for equality - call this in child classes when overloading
+        // Worker for equality - call this in child classes when overloading
         // == and != operator
 
     std::ostream& print( std::ostream& out ) const;
@@ -100,7 +101,7 @@ private:
     std::shared_ptr< KDNode< T > >     m_root;
         // Root node of this KD Tree
 
-    Points< T >                        m_points;
+    Types::Points< T >                        m_points;
         // A list of all points existing in a tree
 
 };
@@ -121,7 +122,7 @@ KDTree< T >::KDTree()
 }
 
 template< typename T >
-KDTree< T >::KDTree( const Points< T >& points )
+KDTree< T >::KDTree( const Types::Points< T >& points )
 : m_points( points )
 {
     std::cout << "Implement the rest!" << std::endl;
@@ -186,11 +187,34 @@ KDTree< T >::deserialize( const std::string& filename )
 }
 
 template< typename T >
-Point< T >
-KDTree< T >::nearestPoint( const Point< T > ) const
+const Types::Point< T >&
+KDTree< T >::nearestPoint( const Types::Point< T >& point ) const
 {
     std::cout << "Implement me!" << std::endl;
-    return Point< T >();
+    return point;
+}
+
+template< typename T >
+const Types::Points< T >&
+KDTree< T >::points() const
+{
+    return m_points;
+}
+template< typename T >
+const Types::Point< T >&
+KDTree< T >::chooseBestSplit( const Types::Points< T >& points,
+                              const size_t plane ) const
+{
+    std::cout << "Implement me!" << std::endl;
+    static const Types::Point< T > temp;
+    return temp;
+}
+
+template< typename T >
+void
+KDTree< T >::build()
+{
+    std::cout << "Implement me!" << std::endl;
 }
 
 //============================================================================

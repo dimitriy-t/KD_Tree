@@ -2,4 +2,5 @@
 *.o
 CMake*
 *.tsk
-Makefile
+kdtree.unit.t
+CMakeLists.txt

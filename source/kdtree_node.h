@@ -6,8 +6,8 @@
 #include <limits>
 #include <sstream>
 
-
-#include <kdtree_constants.h>
+#include "kdtree_types.h"
+#include "kdtree_constants.h"
 
 namespace datastructures {
 
