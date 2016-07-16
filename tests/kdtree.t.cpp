@@ -8,11 +8,7 @@ using namespace datastructures;
 namespace {
 
 //////////////////////////////////////////////////////////////////////////////
-// HELPER FUNCTIONS
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-// TEST FUNCTIONS
+// LOCAL TYPES AND DEFINITIONS
 //////////////////////////////////////////////////////////////////////////////
 
 typedef Types::Point< int >   TestPoint;
@@ -22,13 +18,13 @@ class TestKDTree : public KDTree< int >
 {
 public:
     TestKDTree()
-    : KDTree< int >()
+            : KDTree< int >()
     {
         // nothing to do here
     }
 
     TestKDTree( const TestPoints& testPoints )
-    : KDTree< int >( testPoints )
+            : KDTree< int >( testPoints )
     {
         // nothing to do here
     }
@@ -39,6 +35,15 @@ public:
         return KDTree< int >::chooseBestSplit( points, plane );
     }
 };
+
+
+//////////////////////////////////////////////////////////////////////////////
+// HELPER FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// TEST FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////
 
 //TEST( KDTree, TestZero )
 //{
@@ -122,9 +127,9 @@ TEST( KDTree, Sanity )
     p3.push_back( 8 );
 
     TestPoints sanityData;
-    sanityData.insert( p1 );
-    sanityData.insert( p2 );
-    sanityData.insert( p3 );
+    sanityData.push_back( p1 );
+    sanityData.push_back( p2 );
+    sanityData.push_back( p3 );
 
     try
     {

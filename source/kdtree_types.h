@@ -12,7 +12,10 @@ struct Types {
     using Point = std::vector< T >;
 
     template< typename T >
-    using Points = std::set< Point< T > >;
+    using Points = std::vector< Point< T > >;
+
+    template< typename T >
+    using AxisMinMax = std::vector< std::pair< T, T > >;
 
 };
 
