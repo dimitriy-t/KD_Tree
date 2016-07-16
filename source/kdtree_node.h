@@ -99,7 +99,7 @@ std::ostream& operator<<( std::ostream& lhs,
 //============================================================================
 //                  CREATORS
 //============================================================================
-
+// TODO: move invalid things to Defaults
 template< typename T >
 KDNode< T >::KDNode()
 : m_hyperplaneIndex( std::numeric_limits< size_t >::max() )

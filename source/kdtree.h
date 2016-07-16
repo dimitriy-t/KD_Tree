@@ -6,14 +6,11 @@
 #include "kdtree_types.h"
 #include "kdtree_node.h"
 
-
 // @Purpose
 //
 // This is a base class for a simple KDTree datastructure implementation
 
 namespace datastructures {
-
-
 
 template< typename T >
 class KDTree {
@@ -101,7 +98,7 @@ private:
     std::shared_ptr< KDNode< T > >     m_root;
         // Root node of this KD Tree
 
-    Types::Points< T >                        m_points;
+    Types::Points< T >                 m_points;
         // A list of all points existing in a tree
 
 };
