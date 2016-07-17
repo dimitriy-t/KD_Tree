@@ -5,10 +5,11 @@
 
 #include "kdtree_types.h"
 #include "kdtree_node.h"
+#include "kdtree_hyperplane.h"
 
 // @Purpose
 //
-// This is a base class for a simple KDTree datastructure implementation
+// This is base class for a simple KDTree datastructure implementation
 
 namespace datastructures {
 
@@ -68,13 +69,14 @@ public:
         // primarily for testing.
 
 protected:
-    virtual const Types::Point< T >& chooseBestSplit(
+    //TODO: might need to include exclusion plane
+    //TODO: this might need to have points only
+    virtual const KDHyperplane< T > chooseBestSplit(
             const Types::Points< T >& points,
             const size_t plane ) const;
         // To be overloaded by children when extending the vanilla KDTree
-        // Picks the best possible point out of the provided set in splitting
-        // the tree in two for a given plane
-        // 0 <= plane < cardinality of point space
+        // Serves as a heuristics in determining optimal hyperplane to split the
+        // provided points.
 
     // MANIPULATORS
     void copy( const KDTree& other );
@@ -90,7 +92,9 @@ protected:
         // format
 
 private:
-    void build();
+    //TODO: fix this part in a nice way!
+//    void build( std::shared_ptr< KDNode< T > > root,
+//                Types::Points< T >             points );
         // Function that builds the recursive bisection of the tree, as
         // described by the assignment specification. Calls chooseBestSplit()
         // at each level of recursion until leaf nodes is reached.
@@ -124,14 +128,14 @@ KDTree< T >::KDTree( const Types::Points< T >& points )
 : m_points( points )
 {
     std::cout << "Implement the rest!" << std::endl;
-    build();
+   // build();
 }
 
 template< typename T >
 KDTree< T >::KDTree( const KDTree& other )
 {
     copy( other );
-    build();
+  //  build();
 }
 
 template< typename T >
@@ -149,7 +153,7 @@ KDTree< T >&
 KDTree< T >::operator=( const KDTree< T >& other )
 {
     copy( other );
-    build();
+   // build();
     return *this;
 }
 
@@ -201,21 +205,20 @@ KDTree< T >::points() const
     return m_points;
 }
 template< typename T >
-const Types::Point< T >&
+const KDHyperplane< T >
 KDTree< T >::chooseBestSplit( const Types::Points< T >& points,
                               const size_t plane ) const
 {
     std::cout << "Implement me!" << std::endl;
-    static const Types::Point< T > temp;
-    return temp;
+    return KDHyperplane< T >();
 }
 
-template< typename T >
-void
-KDTree< T >::build()
-{
-    std::cout << "Implement me!" << std::endl;
-}
+//template< typename T >
+//void
+//KDTree< T >::build()
+//{
+//    std::cout << "Implement me!" << std::endl;
+//}
 
 //============================================================================
 //                  MANIPULATORS

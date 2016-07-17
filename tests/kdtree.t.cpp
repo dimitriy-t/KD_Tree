@@ -13,6 +13,7 @@ namespace {
 
 typedef Types::Point< int >   TestPoint;
 typedef Types::Points< int >  TestPoints;
+typedef KDHyperplane< int >   TestHyperplane;
 
 class TestKDTree : public KDTree< int >
 {
@@ -29,8 +30,8 @@ public:
         // nothing to do here
     }
 
-    virtual const TestPoint& chooseBestSplit( const TestPoints& points,
-                                              const size_t plane ) const
+    virtual const TestHyperplane chooseBestSplit( const TestPoints& points,
+                                                  const size_t plane ) const
     {
         return KDTree< int >::chooseBestSplit( points, plane );
     }

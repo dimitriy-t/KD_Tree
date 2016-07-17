@@ -7,6 +7,7 @@
 
 #include "kdtree_types.h"
 #include "kdtree_constants.h"
+#include "kdtree_hyperplane.h"
 
 namespace datastructures {
 
@@ -22,8 +23,7 @@ public:
     KDNode();
     // Default constructor
 
-    KDNode( const size_t                           hyperplaneIndex,
-            const T                                value,
+    KDNode( const KDHyperplane< T >&               hyperplane,
             const std::shared_ptr< KDNode< T > >&  left,
             const std::shared_ptr< KDNode< T > >&  right,
             const Types::Point< T >*               leafI );
@@ -48,14 +48,8 @@ public:
         // Non-equality. Calls equals.
 
     // PRIMARY INTERFACE
-    const size_t hyperplaneIndex() const;
-        // Returns index of the hyperplane defined by this node
-
-    const T value() const;
-        // Return value of this node - i.e. position of the hyperplane
-        // defined by this node.
-        // Note that value is set to static_cast< T >( 0 ) by the
-        // default dtor
+    const KDHyperplane< T >& hyperplane() const;
+        // Returns diving hyperplane represented by this node
 
     std::shared_ptr< KDNode< T > > left() const;
         // Return shared pointer to the left subtree
@@ -63,6 +57,8 @@ public:
     std::shared_ptr< KDNode< T > > right() const;
         // Return shared pointer to the right subtree
 
+    //TODO: think about making this a special leaf node class that always
+    //      has a reference to a Point
     const Types::Point< T >* leafPointPtr() const;
         // Return pointer of the point stored in KDTree that this node
         // represents. Note that non-leaf nodes will return
@@ -82,12 +78,8 @@ public:
         // format
 
 private:
-    size_t                             m_hyperplaneIndex;
-        // Defines the index of the hyperplane
-
-    T                                  m_value;
-        // Position of the hyperplane, left subtree is less or equal, right
-        // subtree is greater
+    KDHyperplane< T >                  m_hyperplane;
+        // Defines hyperplane of this node
 
     std::shared_ptr< KDNode< T > >     m_left;
         // Left subtree
@@ -111,10 +103,7 @@ std::ostream& operator<<( std::ostream& lhs,
 
 template< typename T >
 KDNode< T >::KDNode()
-: m_hyperplaneIndex( Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX )
-, m_value( static_cast< T >(
-                     Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_VALUE ) )
-, m_left(         nullptr )
+: m_left(         nullptr )
 , m_right(        nullptr )
 , m_leafPointPtr( nullptr )
 {
@@ -122,16 +111,14 @@ KDNode< T >::KDNode()
 }
 
 template< typename T >
-KDNode< T >::KDNode( const size_t                           hyperplaneIndex,
-                     const T                                value,
+KDNode< T >::KDNode( const KDHyperplane< T >&               hyperplane,
                      const std::shared_ptr< KDNode< T > >&  left,
                      const std::shared_ptr< KDNode< T > >&  right,
                      const Types::Point< T >*               leafPointPtr )
-: m_hyperplaneIndex( hyperplaneIndex )
-, m_value(           value )
-, m_left(            left )
-, m_right(           right )
-, m_leafPointPtr(    leafPointPtr )
+: m_hyperplane(   hyperplane )
+, m_left(         left )
+, m_right(        right )
+, m_leafPointPtr( leafPointPtr )
 {
     // nothing to do here
 }
@@ -178,17 +165,10 @@ bool KDNode< T >::operator!=(
 //                  PRIMARY INTERFACE
 //============================================================================
 template< typename T >
-const size_t
-KDNode< T >::hyperplaneIndex() const
+const KDHyperplane< T >&
+KDNode< T >::hyperplane() const
 {
-    return m_hyperplaneIndex;
-}
-
-template< typename T >
-const T
-KDNode< T >::value() const
-{
-    return m_value;
+    return m_hyperplane;
 }
 
 template< typename T >
@@ -220,11 +200,10 @@ template< typename T >
 void
 KDNode< T >::copy( const KDNode< T >& other )
 {
-    m_hyperplaneIndex = other.hyperplaneIndex();
-    m_value           = other.value();
-    m_left            = other.left();
-    m_right           = other.right();
-    m_leafPointPtr    = other.leafPointPtr();
+    m_hyperplane   = other.hyperplane();
+    m_left         = other.left();
+    m_right        = other.right();
+    m_leafPointPtr = other.leafPointPtr();
 }
 
 //============================================================================
@@ -233,14 +212,12 @@ KDNode< T >::copy( const KDNode< T >& other )
 
 template< typename T >
 bool
-KDNode< T >::equals(
-        const KDNode< T >& other ) const
+KDNode< T >::equals( const KDNode< T >& other ) const
 {
-    return ( ( other.hyperplaneIndex() == m_hyperplaneIndex ) &&
-             ( other.value()           == m_value           ) &&
-             ( other.left()            == m_left            ) &&
-             ( other.right()           == m_right           ) &&
-             ( other.leafPointPtr()    == m_leafPointPtr    ) );
+    return ( ( other.hyperplane()   == m_hyperplane   ) &&
+             ( other.left()         == m_left         ) &&
+             ( other.right()        == m_right        ) &&
+             ( other.leafPointPtr() == m_leafPointPtr ) );
 }
 
 template< typename T >
@@ -248,11 +225,10 @@ std::ostream&
 KDNode< T >::print( std::ostream& out ) const
 {
     out << "KDNode:["
-        << "hyperplane index = '" << std::dec << m_hyperplaneIndex << "', "
-        << "value = '"            << std::dec << m_value           << "', "
-        << "left ptr = '"         << std::hex << m_left            << "', "
-        << "right ptr = '"        << std::hex << m_right           << "', "
-        << "leaf point ptr = '"   << std::hex << m_leafPointPtr    << "']";
+        << "hyperplane = '"     << std::dec << m_hyperplane   << "', "
+        << "left ptr = '"       << std::hex << m_left         << "', "
+        << "right ptr = '"      << std::hex << m_right        << "', "
+        << "leaf point ptr = '" << std::hex << m_leafPointPtr << "']";
 
     return out;
 }
@@ -261,8 +237,7 @@ KDNode< T >::print( std::ostream& out ) const
 //                  INDEPENDENT OPERATORS
 //============================================================================
 template< typename T >
-std::ostream& operator<<( std::ostream& lhs,
-                          const KDNode< T >& rhs )
+std::ostream& operator<<( std::ostream& lhs, const KDNode< T >& rhs )
 {
     return rhs.print( lhs );
 }
