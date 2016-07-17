@@ -28,7 +28,7 @@ public:
             const std::shared_ptr< KDNode< T > >&  right );
         // Non-leaf Constructor
 
-    KDNode( const Types::Point< T >* leaf );
+    KDNode( const Types::Point< T >& leafPoint );
         // Leaf Constructor
 
     KDNode( const KDNode& other );
@@ -59,11 +59,10 @@ public:
     std::shared_ptr< KDNode< T > > right() const;
         // Return shared pointer to the right subtree
 
-    //TODO: think about making this a special leaf node class that always has a reference to a Point
-    const Types::Point< T >* leafPointPtr() const;
+    const Types::Point< T >& leafPoint() const;
         // Return pointer of the point stored in KDTree that this node
         // represents. Note that non-leaf nodes will return
-        // nullptr
+        // an empty Types::Point< T >
 
     // MANIPULATORS
     void copy( const KDNode& other );
@@ -88,7 +87,7 @@ private:
     std::shared_ptr< KDNode< T > >     m_right;
         // Right subtree
 
-    const Types::Point< T >*           m_leafPointPtr;
+    Types::Point< T >                  m_leafPoint;
         // Pointer to leaf point in the KDTree. Note that KDNode is used to
         // index the points in a KDTree, but does not own the memory;
 };
@@ -106,7 +105,6 @@ template< typename T >
 KDNode< T >::KDNode()
 : m_left(         nullptr )
 , m_right(        nullptr )
-, m_leafPointPtr( nullptr )
 {
     // nothing to do here
 }
@@ -118,16 +116,15 @@ KDNode< T >::KDNode( const KDHyperplane< T >&               hyperplane,
 : m_hyperplane(   hyperplane )
 , m_left(         left )
 , m_right(        right )
-, m_leafPointPtr( nullptr )
 {
     // nothing to do here
 }
 
 template< typename T >
-KDNode< T >::KDNode( const Types::Point< T >* leafPointPtr )
+KDNode< T >::KDNode( const Types::Point< T >& leafPoint )
 : m_left(         nullptr )
 , m_right(        nullptr )
-, m_leafPointPtr( leafPointPtr )
+, m_leafPoint(    leafPoint )
 {
     // nothing to do here
 }
@@ -195,10 +192,10 @@ KDNode< T >::right() const
 }
 
 template< typename T >
-const Types::Point< T >*
-KDNode< T >::leafPointPtr() const
+const Types::Point< T >&
+KDNode< T >::leafPoint() const
 {
-    return m_leafPointPtr;
+    return m_leafPoint;
 }
 
 //============================================================================
@@ -209,10 +206,10 @@ template< typename T >
 void
 KDNode< T >::copy( const KDNode< T >& other )
 {
-    m_hyperplane   = other.hyperplane();
-    m_left         = other.left();
-    m_right        = other.right();
-    m_leafPointPtr = other.leafPointPtr();
+    m_hyperplane = other.hyperplane();
+    m_left       = other.left();
+    m_right      = other.right();
+    m_leafPoint  = other.leafPoint();
 }
 
 //============================================================================
@@ -223,21 +220,21 @@ template< typename T >
 bool
 KDNode< T >::equals( const KDNode< T >& other ) const
 {
-    return ( ( other.hyperplane()   == m_hyperplane   ) &&
-             ( other.left()         == m_left         ) &&
-             ( other.right()        == m_right        ) &&
-             ( other.leafPointPtr() == m_leafPointPtr ) );
+    return ( ( other.hyperplane() == m_hyperplane ) &&
+             ( other.left()       == m_left       ) &&
+             ( other.right()      == m_right      ) &&
+             ( other.leafPoint()  == m_leafPoint  ) );
 }
 
 template< typename T >
 std::ostream&
 KDNode< T >::print( std::ostream& out ) const
 {
-    out << "KDNode:["
-        << "hyperplane = '"     << std::dec << m_hyperplane   << "', "
-        << "left ptr = '"       << std::hex << m_left         << "', "
-        << "right ptr = '"      << std::hex << m_right        << "', "
-        << "leaf point ptr = '" << std::hex << m_leafPointPtr << "']";
+    out << "KDNode:[ "
+        << "hyperplane = " << m_hyperplane        << "', "
+        << "left ptr = '"  << std::hex << m_left  << "', "
+        << "right ptr = '" << std::hex << m_right << "', "
+        << "leaf point = " << m_leafPoint         << " ]";
 
     return out;
 }

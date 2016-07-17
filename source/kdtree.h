@@ -217,10 +217,9 @@ KDTree< T >::build( const Types::Points< T > points )
     // Base Case
     if ( points.size() == 1u )
     {
-        //TODO: fix this, memory leak!
-        // Make a leaf
+        // Make a leaf node
         return std::shared_ptr< KDNode< T > >(
-                new KDNode< T >( &points[ 0 ] ) );
+                new KDNode< T >( points[ 0 ] ) );
     }
 
     // Recursive case

@@ -184,9 +184,9 @@ template< typename T >
 std::ostream&
 KDHyperplane< T >::print( std::ostream& out ) const
 {
-    out << "KDHyperplane:["
+    out << "KDHyperplane:[ "
         << "hyperplane index = '" << std::dec << m_hyperplaneIndex << "', "
-        << "value = '"            << std::dec << m_value           << "'] ";
+        << "value = '"            << std::dec << m_value           << "' ] ";
     return out;
 }
 
