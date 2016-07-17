@@ -15,4 +15,8 @@ const std::size_t Defaults::KDTREE_EMPTY_SET_VARIANCE
 
 const std::size_t Defaults::KDTREE_EMPTY_SET_MEDIAN
     = 0u;
+
+const std::string Defaults::KDTREE_SIMPLE_VARIETY
+    = "Simple KDTree Implementations";
+
 } // namespace datastructures

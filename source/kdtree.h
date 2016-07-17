@@ -69,6 +69,9 @@ public:
         // Returns the set of points represented by this KDTree. Used
         // primarily for testing.
 
+    const std::string& type() const;
+        // Returns type of this KDTree object
+
 protected:
     virtual const KDHyperplane< T > chooseBestSplit(
             const Types::Points< T >& points ) const;
@@ -99,10 +102,8 @@ private:
     std::shared_ptr< KDNode< T > >     m_root;
         // Root node of this KD Tree
 
-    //TODO: needed?
-    Types::Points< T >                 m_points;
-        // A list of all points existing in a tree
-
+    std::string                        m_type;
+        // Type of the KDTree. Used primarily for debugging/logs
 };
 
 // INDEPENDENT OPERATORS
@@ -116,22 +117,22 @@ std::ostream& operator<<( std::ostream& lhs,
 
 template< typename T >
 KDTree< T >::KDTree()
+: m_type( Defaults::KDTREE_SIMPLE_VARIETY )
 {
     // nothing to do here
 }
 
 template< typename T >
 KDTree< T >::KDTree( const Types::Points< T >& points )
-: m_points( points ) // TODO: needed?
+: m_type( Defaults::KDTREE_SIMPLE_VARIETY )
 {
-    m_root = build( m_points );
+    m_root = build( points );
 }
 
 template< typename T >
 KDTree< T >::KDTree( const KDTree& other )
 {
     copy( other );
-    m_root = build( m_points );
 }
 
 template< typename T >
@@ -149,7 +150,6 @@ KDTree< T >&
 KDTree< T >::operator=( const KDTree< T >& other )
 {
     copy( other );
-    m_root = build( m_points );
     return *this;
 }
 
@@ -191,15 +191,26 @@ const Types::Point< T >&
 KDTree< T >::nearestPoint( const Types::Point< T >& point ) const
 {
     std::cout << "Implement me!" << std::endl;
-    return point;
+    static const Types::Point< T > tempPoint;
+    return tempPoint;
 }
 
 template< typename T >
 const Types::Points< T >&
 KDTree< T >::points() const
 {
-    return m_points;
+    std::cout << "Implement me!" << std::endl;
+    static const Types::Points< T > tempPoints;
+    return tempPoints;
 }
+
+template< typename T >
+const std::string&
+KDTree< T >::type() const
+{
+    return m_type;
+}
+
 template< typename T >
 const KDHyperplane< T >
 KDTree< T >::chooseBestSplit( const Types::Points< T >& points ) const
@@ -258,7 +269,7 @@ template< typename T >
 void
 KDTree< T >::copy( const KDTree< T >& other )
 {
-    m_points   = other.points();
+    m_root = build( other.points() );
 }
 
 //============================================================================
@@ -269,16 +280,17 @@ template< typename T >
 bool
 KDTree< T >::equals( const KDTree< T >& other ) const
 {
-    return ( ( other.points() == m_points ) );
+    return ( ( other.type()    == m_type ) &&
+             ( other.points()) == points() );
 }
 
 template< typename T >
 std::ostream&
 KDTree< T >::print( std::ostream& out ) const
 {
-    std::cout << "Implement me!" << std::endl;
-
-    out << "KDTree:["
+    out << "KDTree:[ "
+        << "implementation type = '" << m_type << "', "
+        << "num points stored = " << points().size() << " "
         << "']";
 
     return out;
