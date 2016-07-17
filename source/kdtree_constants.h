@@ -10,8 +10,9 @@ struct Defaults {
     // Used in default ctor to signify uninitialized value of
     // divisor hyperplane index
 
-    static const std::size_t KDTREE_NONLEAF_INDEX;
-    // Index stored in non-leaf KDNode objects
+    static const std::size_t KDTREE_UNINITIALIZED_HYPERPLANE_VALUE;
+    // Used in default ctor to signify uninitialized value of
+    // divisor hyperplane position
 
     static const std::size_t KDTREE_EMPTY_SET_VARIANCE;
     // Defines a variance of an empty set

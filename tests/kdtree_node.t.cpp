@@ -56,33 +56,56 @@ TEST( KDNode, TestUninitializedState )
 
     ASSERT_EQ( dummyNode.hyperplaneIndex(),
         Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX );
-    ASSERT_EQ( dummyNode.left(), nullptr );
-    ASSERT_EQ( dummyNode.left(), nullptr );
-    ASSERT_EQ( dummyNode.leafIndex(),
-        Defaults::KDTREE_NONLEAF_INDEX );
+    ASSERT_EQ( dummyNode.left(),         nullptr );
+    ASSERT_EQ( dummyNode.left(),         nullptr );
+    ASSERT_EQ( dummyNode.leafPointPtr(), nullptr );
 }
 
 TEST( KDNode, Sanity )
 {
-    const size_t                             hyperplaneIndex = 1u;
-    const int                                hyperplaneValue = 2;
-    const std::shared_ptr< KDNode< int > >   left( new KDNode< int >() );
-    const std::shared_ptr< KDNode< int > >   right( new KDNode< int >() );
-    const size_t                             leafIndex       = 3;
+    const size_t                                  hyperplaneIndex = 1u;
+    const int                                     hyperplaneValue = 2;
+    const std::shared_ptr< KDNode< int > >        left( new KDNode< int >() );
+    const std::shared_ptr< KDNode< int > >        right( new KDNode< int >() );
+    const std::shared_ptr< Types::Point< int > >  leafPointPtr(
+            new Types::Point< int >() );
 
     KDNode< int > dummyNode( hyperplaneIndex,
                              hyperplaneValue,
                              left,
                              right,
-                             leafIndex );
+                             leafPointPtr.get() );
 
-    ASSERT_EQ( dummyNode.hyperplaneIndex()                   , hyperplaneIndex );
-    ASSERT_EQ( dummyNode.value()                             , hyperplaneValue );
-    ASSERT_EQ( dummyNode.left()                              , left );
-    ASSERT_EQ( dummyNode.right()                             , right );
-    ASSERT_EQ( dummyNode.leafIndex()                         , leafIndex );
+    ASSERT_EQ( dummyNode.hyperplaneIndex() , hyperplaneIndex );
+    ASSERT_EQ( dummyNode.value()           , hyperplaneValue );
+    ASSERT_EQ( dummyNode.left()            , left );
+    ASSERT_EQ( dummyNode.right()           , right );
+    ASSERT_EQ( dummyNode.leafPointPtr()    , leafPointPtr.get() );
 
     std::cout << dummyNode << std::endl;
+
+    KDNode< int > dummyNode2 = dummyNode;
+    ASSERT_EQ( dummyNode2.hyperplaneIndex() , hyperplaneIndex );
+    ASSERT_EQ( dummyNode2.value()           , hyperplaneValue );
+    ASSERT_EQ( dummyNode2.left()            , left );
+    ASSERT_EQ( dummyNode2.right()           , right );
+    ASSERT_EQ( dummyNode2.leafPointPtr()    , leafPointPtr.get() );
+
+    std::cout << dummyNode2 << std::endl;
+
+    KDNode< int > dummyNode3 = dummyNode;
+    ASSERT_EQ( dummyNode3.hyperplaneIndex() , hyperplaneIndex );
+    ASSERT_EQ( dummyNode3.value()           , hyperplaneValue );
+    ASSERT_EQ( dummyNode3.left()            , left );
+    ASSERT_EQ( dummyNode3.right()           , right );
+    ASSERT_EQ( dummyNode3.leafPointPtr()    , leafPointPtr.get() );
+
+    std::cout << dummyNode2 << std::endl;
+
+    ASSERT_EQ( dummyNode, dummyNode2 );
+    ASSERT_EQ( dummyNode, dummyNode3 );
+    ASSERT_EQ( dummyNode2, dummyNode3 );
+
 }
 
 } // namespace

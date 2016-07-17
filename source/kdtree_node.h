@@ -12,21 +12,21 @@ namespace datastructures {
 
 // PURPOSE:
 //
-// A class that defines individual notes within a KD-Tree
+// A class that defines individual notes within a KD-Tree. Used to
+// represent both leaf and non-leaf nodes.
 //
 template< typename T >
 class KDNode {
 public:
-
     // CREATORS
     KDNode();
-        // Default constructor
+    // Default constructor
 
     KDNode( const size_t                           hyperplaneIndex,
             const T                                value,
             const std::shared_ptr< KDNode< T > >&  left,
             const std::shared_ptr< KDNode< T > >&  right,
-            const size_t                           leafIndex );
+            const Types::Point< T >*               leafI );
         // Constructor
 
     KDNode( const KDNode& other );
@@ -54,7 +54,8 @@ public:
     const T value() const;
         // Return value of this node - i.e. position of the hyperplane
         // defined by this node.
-        // Note that value of this type is not set by default dtor
+        // Note that value is set to static_cast< T >( 0 ) by the
+        // default dtor
 
     std::shared_ptr< KDNode< T > > left() const;
         // Return shared pointer to the left subtree
@@ -62,10 +63,10 @@ public:
     std::shared_ptr< KDNode< T > > right() const;
         // Return shared pointer to the right subtree
 
-    const size_t leafIndex() const;
-        // Return index of the point stored in KDTree that this node
+    const Types::Point< T >* leafPointPtr() const;
+        // Return pointer of the point stored in KDTree that this node
         // represents. Note that non-leaf nodes will return
-        // Defaults::KDTREE_NONLEAF_INDEX
+        // nullptr
 
     // MANIPULATORS
     void copy( const KDNode& other );
@@ -94,10 +95,9 @@ private:
     std::shared_ptr< KDNode< T > >     m_right;
         // Right subtree
 
-    size_t                             m_leafIndex;
-        // Index of the point in the KDTree internal structure. Note that
-        // this value is set Defaults::KDTREE_NONLEAF_INDEX for all
-        // non-leaf nodes.
+    const Types::Point< T >*           m_leafPointPtr;
+        // Pointer to leaf point in the KDTree. Note that KDNode is used to
+        // index the points in a KDTree, but does not own the memory;
 };
 
 // INDEPENDENT OPERATORS
@@ -112,9 +112,11 @@ std::ostream& operator<<( std::ostream& lhs,
 template< typename T >
 KDNode< T >::KDNode()
 : m_hyperplaneIndex( Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX )
-, m_left(            NULL )
-, m_right(           NULL )
-, m_leafIndex(       Defaults::KDTREE_NONLEAF_INDEX )
+, m_value( static_cast< T >(
+                     Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_VALUE ) )
+, m_left(         nullptr )
+, m_right(        nullptr )
+, m_leafPointPtr( nullptr )
 {
     // nothing to do here
 }
@@ -124,12 +126,12 @@ KDNode< T >::KDNode( const size_t                           hyperplaneIndex,
                      const T                                value,
                      const std::shared_ptr< KDNode< T > >&  left,
                      const std::shared_ptr< KDNode< T > >&  right,
-                     const size_t                           leafIndex )
+                     const Types::Point< T >*               leafPointPtr )
 : m_hyperplaneIndex( hyperplaneIndex )
 , m_value(           value )
-, m_left(            left)
+, m_left(            left )
 , m_right(           right )
-, m_leafIndex(       leafIndex )
+, m_leafPointPtr(    leafPointPtr )
 {
     // nothing to do here
 }
@@ -204,10 +206,10 @@ KDNode< T >::right() const
 }
 
 template< typename T >
-const size_t
-KDNode< T >::leafIndex() const
+const Types::Point< T >*
+KDNode< T >::leafPointPtr() const
 {
-    return m_leafIndex;
+    return m_leafPointPtr;
 }
 
 //============================================================================
@@ -222,7 +224,7 @@ KDNode< T >::copy( const KDNode< T >& other )
     m_value           = other.value();
     m_left            = other.left();
     m_right           = other.right();
-    m_leafIndex       = other.leafIndex();
+    m_leafPointPtr    = other.leafPointPtr();
 }
 
 //============================================================================
@@ -238,7 +240,7 @@ KDNode< T >::equals(
              ( other.value()           == m_value           ) &&
              ( other.left()            == m_left            ) &&
              ( other.right()           == m_right           ) &&
-             ( other.leafIndex()       == m_leafIndex       ) );
+             ( other.leafPointPtr()    == m_leafPointPtr    ) );
 }
 
 template< typename T >
@@ -250,7 +252,7 @@ KDNode< T >::print( std::ostream& out ) const
         << "value = '"            << std::dec << m_value           << "', "
         << "left ptr = '"         << std::hex << m_left            << "', "
         << "right ptr = '"        << std::hex << m_right           << "', "
-        << "leaf index = '"       << std::hex << m_leafIndex       << "']";
+        << "leaf point ptr = '"   << std::hex << m_leafPointPtr    << "']";
 
     return out;
 }

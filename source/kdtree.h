@@ -92,7 +92,8 @@ protected:
 private:
     void build();
         // Function that builds the recursive bisection of the tree, as
-        // described by the assingmnet specification. Calls chooseBestSplit()
+        // described by the assignment specification. Calls chooseBestSplit()
+        // at each level of recursion until leaf nodes is reached.
 
 private:
     std::shared_ptr< KDNode< T > >     m_root;
