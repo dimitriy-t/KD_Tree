@@ -232,6 +232,9 @@ template< typename T >
 std::shared_ptr< KDNode< T > >
 KDTree< T >::build( const Types::Points< T > points )
 {
+    //TODO: remove
+    //std::cout << "=======================" << std::endl;
+    //std::cout << "Entering create on : " << points << std::endl;
     // Sanity
     if ( !points.size() )
     {
@@ -243,6 +246,9 @@ KDTree< T >::build( const Types::Points< T > points )
     // Base Case
     if ( points.size() == 1u )
     {
+        //TODO: remove
+        // std::cout << "Base case, returning " << std::endl;
+
         // Make a leaf node
         typename Types::Points< T >::const_iterator it = points.cbegin();
         return std::shared_ptr< KDNode< T > >(
@@ -251,6 +257,9 @@ KDTree< T >::build( const Types::Points< T > points )
 
     // Recursive case
     const KDHyperplane< T > hyperplane = chooseBestSplit( points );
+
+    //TODO: remove
+    //std::cout << hyperplane << std::endl;
 
     Types::Points< T > leftPoints;
     Types::Points< T > rightPoints;
@@ -326,7 +335,7 @@ KDTree< T >::print( std::ostream& out ) const
 {
     out << "KDTree:[ "
         << "implementation type = '" << m_type          << "', "
-        << "num points stored = "    << points().size() << "] ";
+        << "num points stored = "    << points().size() << " ] ";
 
     return out;
 }
