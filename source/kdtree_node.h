@@ -64,6 +64,9 @@ public:
         // represents. Note that non-leaf nodes will return
         // an empty Types::Point< T >
 
+    bool isLeaf() const;
+        // Returns true if a node is leaf and false otherwise
+
     // MANIPULATORS
     void copy( const KDNode& other );
         // Copies the value of other into this
@@ -197,6 +200,12 @@ KDNode< T >::leafPoint() const
 {
     return m_leafPoint;
 }
+template< typename T >
+bool
+KDNode< T >::isLeaf() const
+{
+    return ( m_leafPoint.size() != 0u );
+}
 
 //============================================================================
 //                  MANIPULATORS
@@ -231,10 +240,11 @@ std::ostream&
 KDNode< T >::print( std::ostream& out ) const
 {
     out << "KDNode:[ "
-        << "hyperplane = " << m_hyperplane        << "', "
-        << "left ptr = '"  << std::hex << m_left  << "', "
-        << "right ptr = '" << std::hex << m_right << "', "
-        << "leaf point = " << m_leafPoint         << " ]";
+        << "is leaf = '"   << ( isLeaf() ? "yes" : "no" ) << "', "
+        << "hyperplane = " << m_hyperplane                << ", "
+        << "left ptr = '"  << std::hex << m_left          << "', "
+        << "right ptr = '" << std::hex << m_right         << "', "
+        << "leaf point = " << m_leafPoint                 << " ]";
 
     return out;
 }

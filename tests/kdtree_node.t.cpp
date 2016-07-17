@@ -77,6 +77,7 @@ TEST( KDNode, SanityNonLeaf )
     ASSERT_EQ( dummyNode.left()      , left );
     ASSERT_EQ( dummyNode.right()     , right );
     ASSERT_EQ( dummyNode.leafPoint() , emptyLeafPoint );
+    ASSERT_EQ( dummyNode.isLeaf()    , false );
 
     std::cout << dummyNode << std::endl;
 
@@ -86,6 +87,7 @@ TEST( KDNode, SanityNonLeaf )
     ASSERT_EQ( dummyNode2.left()      , left );
     ASSERT_EQ( dummyNode2.right()     , right );
     ASSERT_EQ( dummyNode2.leafPoint() , emptyLeafPoint );
+    ASSERT_EQ( dummyNode2.isLeaf()    , false );
 
     std::cout << dummyNode2 << std::endl;
 
@@ -95,6 +97,7 @@ TEST( KDNode, SanityNonLeaf )
     ASSERT_EQ( dummyNode3.left()      , left );
     ASSERT_EQ( dummyNode3.right()     , right );
     ASSERT_EQ( dummyNode3.leafPoint() , emptyLeafPoint );
+    ASSERT_EQ( dummyNode3.isLeaf()    , false );
 
     std::cout << dummyNode2 << std::endl;
 
@@ -117,6 +120,7 @@ TEST( KDNode, SanityLeaf )
     ASSERT_EQ( dummyLeafNode.left()      , nullptr );
     ASSERT_EQ( dummyLeafNode.right()     , nullptr );
     ASSERT_EQ( dummyLeafNode.leafPoint() , leafPoint );
+    ASSERT_EQ( dummyLeafNode.isLeaf()    , true );
 
     std::cout << dummyLeafNode << std::endl;
 
@@ -125,6 +129,7 @@ TEST( KDNode, SanityLeaf )
     ASSERT_EQ( dummyLeafNode2.left()      , nullptr );
     ASSERT_EQ( dummyLeafNode2.right()     , nullptr );
     ASSERT_EQ( dummyLeafNode2.leafPoint() , leafPoint );
+    ASSERT_EQ( dummyLeafNode2.isLeaf()    , true );
 
     std::cout << dummyLeafNode2 << std::endl;
 
@@ -133,6 +138,7 @@ TEST( KDNode, SanityLeaf )
     ASSERT_EQ( dummyLeafNode3.left()      , nullptr );
     ASSERT_EQ( dummyLeafNode3.right()     , nullptr );
     ASSERT_EQ( dummyLeafNode3.leafPoint() , leafPoint );
+    ASSERT_EQ( dummyLeafNode3.isLeaf()    , true );
 
     std::cout << dummyLeafNode3 << std::endl;
 

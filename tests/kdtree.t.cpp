@@ -35,6 +35,11 @@ public:
     {
         return KDTree< int >::chooseBestSplit( points );
     }
+
+    std::shared_ptr< KDNode< int > > root()
+    {
+        return m_root;
+    }
 };
 
 

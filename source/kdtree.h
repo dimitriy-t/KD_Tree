@@ -98,10 +98,11 @@ private:
         // described by the assignment specification. Calls chooseBestSplit()
         // at each level of recursion until leaf nodes is reached.
 
-private:
+protected:
     std::shared_ptr< KDNode< T > >     m_root;
         // Root node of this KD Tree
 
+private:
     std::string                        m_type;
         // Type of the KDTree. Used primarily for debugging/logs
 };
