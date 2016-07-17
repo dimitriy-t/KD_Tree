@@ -26,7 +26,7 @@ TEST( Utils, MedianValueInAxis )
 {
     TestPoints sanityData;
     ASSERT_EQ( Utils::medianValueInAxis< int >( sanityData, 0u ),
-            Defaults::KDTREE_EMPTY_SET_MEDIAN  );
+            Constants::KDTREE_EMPTY_SET_MEDIAN  );
 
     TestPoint p1;
     p1.push_back( 0  );
@@ -64,7 +64,7 @@ TEST( Utils, MedianValueInAxis )
     ASSERT_EQ( Utils::medianValueInAxis< int >( sanityData, 2u ), 19 );
 
     ASSERT_EQ( Utils::medianValueInAxis< int >( sanityData, 42u ),
-               Defaults::KDTREE_EMPTY_SET_MEDIAN  );
+               Constants::KDTREE_EMPTY_SET_MEDIAN  );
 }
 
 TEST( Utils, AxisMinMax )
@@ -120,7 +120,7 @@ TEST( Utils, AxisOfHighestVariance )
 {
     TestPoints sanityData;
     ASSERT_EQ( Utils::axisOfHighestVariance< int >( sanityData ),
-               Defaults::KDTREE_EMPTY_SET_VARIANCE );
+               Constants::KDTREE_EMPTY_SET_VARIANCE );
 
     TestPoint p1;
     p1.push_back( -1 );
@@ -154,6 +154,27 @@ TEST( Utils, AxisOfHighestVariance )
     sanityData.insert( p5 );
 
     ASSERT_EQ( Utils::axisOfHighestVariance< int >( sanityData ), 2u );
+}
+
+TEST( Utils, Distance )
+{
+    TestPoint p1;
+    p1.push_back( 3 );
+
+    TestPoint p2;
+    p2.push_back( 4 );
+
+    ASSERT_EQ( 1.0L, Utils::distance( p1, p2 ) );
+
+    TestPoint p3;
+    p3.push_back( 0 );
+    p3.push_back( 3 );
+
+    TestPoint p4;
+    p4.push_back( 4 );
+    p4.push_back( 0 );
+
+    ASSERT_EQ( 5.0L, Utils::distance( p3, p4 ) );
 }
 
 } // namespace

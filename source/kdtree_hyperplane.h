@@ -85,9 +85,9 @@ std::ostream& operator<<( std::ostream& lhs,
 
 template< typename T >
 KDHyperplane< T >::KDHyperplane()
-: m_hyperplaneIndex( Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX )
+: m_hyperplaneIndex( Constants::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX )
 , m_value( static_cast< T >(
-                   Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_VALUE ) )
+                     Constants::KDTREE_UNINITIALIZED_HYPERPLANE_VALUE ) )
 {
     // nothing to do here
 }

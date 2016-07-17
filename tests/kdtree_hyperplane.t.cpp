@@ -57,9 +57,9 @@ TEST( KDHyperplane, TestUninitializedState )
     TestHyperplane dummyHyperplane;
 
     ASSERT_EQ( dummyHyperplane.hyperplaneIndex(),
-            Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX );
+            Constants::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX );
     ASSERT_EQ( dummyHyperplane.value(), static_cast< int >(
-            Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_VALUE ) );
+            Constants::KDTREE_UNINITIALIZED_HYPERPLANE_VALUE ) );
 }
 
 TEST( KDHyperplane, Sanity )

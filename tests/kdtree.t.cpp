@@ -2,6 +2,7 @@
 
 #include "kdtree_types.h"
 #include "kdtree.h"
+#include "kdtree_utils.h"
 
 using namespace datastructures;
 
@@ -47,30 +48,6 @@ public:
 // HELPER FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
 
-double distance( const TestPoint& p1, const TestPoint& p2 )
-{
-    // Sanity
-    if ( p1.size() != p2.size() )
-    {
-        std::cerr << "*** TEST DATA INCORRECT, POINT CARDINALITY MISMATCH ***"
-                  << std::endl;
-
-        return -1.0L;
-    }
-
-    double dist2 = 0.0L;
-
-    typename TestPoint::const_iterator it1 = p1.cbegin();
-    typename TestPoint::const_iterator it2 = p2.cbegin();
-    for (;it1 != p1.cend() && it2 != p2.cend(); ++it1, ++it2 )
-    {
-        double temp = ( *it1 ) - ( *it2 );
-        dist2 += temp * temp;
-    }
-
-    return sqrt( dist2 );
-}
-
 TestPoint bruteForceClosest( const TestPoints& points,
                              const TestPoint& pointOfInterest )
 {
@@ -82,14 +59,14 @@ TestPoint bruteForceClosest( const TestPoints& points,
 
     typename TestPoints::const_iterator it = points.cbegin();
     TestPoint closestSoFar = ( *it );
-    double smallestDist = distance( pointOfInterest, ( *it ) );
+    double smallestDist = Utils::distance< int >( pointOfInterest, ( *it ) );
     ++it;
 
     std::cout << smallestDist << std::endl;
 
     for (;it != points.cend(); ++it )
     {
-        const double temp = distance( pointOfInterest, ( *it ) );
+        const double temp = Utils::distance< int >( pointOfInterest, ( *it ) );
         if ( temp < smallestDist )
         {
             smallestDist = temp;
@@ -103,27 +80,6 @@ TestPoint bruteForceClosest( const TestPoints& points,
 //////////////////////////////////////////////////////////////////////////////
 // TEST FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
-
-TEST( Helpers, TestDistance )
-{
-    TestPoint p1;
-    p1.push_back( 3 );
-
-    TestPoint p2;
-    p2.push_back( 4 );
-
-    ASSERT_EQ( 1.0L, distance( p1, p2 ) );
-
-    TestPoint p3;
-    p3.push_back( 0 );
-    p3.push_back( 3 );
-
-    TestPoint p4;
-    p4.push_back( 4 );
-    p4.push_back( 0 );
-
-    ASSERT_EQ( 5.0L, distance( p3, p4 ) );
-}
 
 TEST( Helpers, TestBruteForceClosest )
 {
@@ -190,7 +146,7 @@ TEST( KDTree, TestUninitializedState )
 
     ASSERT_EQ( dummyTree.root(),   nullptr );
     ASSERT_EQ( dummyTree.points(), dummyPoints );
-    ASSERT_EQ( dummyTree.type(),   Defaults::KDTREE_SIMPLE_VARIETY );
+    ASSERT_EQ( dummyTree.type(),   Constants::KDTREE_SIMPLE_VARIETY );
 
     std::cout << dummyTree << std::endl;
 }

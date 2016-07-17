@@ -123,21 +123,21 @@ std::ostream& operator<<( std::ostream& lhs,
 
 template< typename T >
 KDTree< T >::KDTree()
-: m_type( Defaults::KDTREE_SIMPLE_VARIETY )
+: m_type( Constants::KDTREE_SIMPLE_VARIETY )
 {
     // nothing to do here
 }
 
 template< typename T >
 KDTree< T >::KDTree( const Types::Points< T >& points )
-: m_type( Defaults::KDTREE_SIMPLE_VARIETY )
+: m_type( Constants::KDTREE_SIMPLE_VARIETY )
 {
     m_root = build( points );
 }
 
 template< typename T >
 KDTree< T >::KDTree( const KDTree& other )
-: m_type( Defaults::KDTREE_SIMPLE_VARIETY )
+: m_type( Constants::KDTREE_SIMPLE_VARIETY )
 {
     copy( other );
 }
@@ -197,6 +197,9 @@ template< typename T >
 const Types::Point< T >&
 KDTree< T >::nearestPoint( const Types::Point< T >& point ) const
 {
+    // First descend greedily through the graph
+
+
     std::cout << "Implement me!" << std::endl;
     static const Types::Point< T > tempPoint;
     return tempPoint;

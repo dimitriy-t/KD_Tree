@@ -35,6 +35,14 @@ struct Utils {
     minMaxPerAxis( const Types::Points< T >& points );
         // Given a set of equally dimensional points find min and max value
         // for each axis
+
+    template< typename T >
+    static double
+    distance( const Types::Point< T >& p1, const Types::Point< T >& p2 );
+        // Computed distance between two points. Returns
+        // KDTREE_INVALID_POINT_DISTANCE in case points are of different
+        // cardinality
+
 };
 
 //============================================================================
@@ -48,7 +56,7 @@ Utils::axisOfHighestVariance( const Types::Points< T >& points )
     // Sanity
     if ( !points.size() )
     {
-        return Defaults::KDTREE_EMPTY_SET_VARIANCE;
+        return Constants::KDTREE_EMPTY_SET_VARIANCE;
     }
 
     const Types::AxisMinMax< T > axisMinMax =
@@ -56,8 +64,8 @@ Utils::axisOfHighestVariance( const Types::Points< T >& points )
 
 
     size_t axis = 0;
-    T largestVariance = std::abs( axisMinMax[ 0 ].second -
-                                  axisMinMax[ 0 ].first );
+    T largestVariance = std::abs( axisMinMax[ 0u ].second -
+                                  axisMinMax[ 0u ].first );
 
     for ( size_t i = 1u; i < axisMinMax.size(); ++i )
     {
@@ -81,7 +89,7 @@ Utils::medianValueInAxis( const Types::Points< T >& points,
     // Sanity
     if ( !points.size() )
     {
-        return Defaults::KDTREE_EMPTY_SET_VARIANCE;
+        return Constants::KDTREE_EMPTY_SET_VARIANCE;
     }
 
     std::vector< T > values;
@@ -93,7 +101,7 @@ Utils::medianValueInAxis( const Types::Points< T >& points,
         // Sanity
         if ( ( *it ).size() <= axis)
         {
-            return Defaults::KDTREE_EMPTY_SET_VARIANCE;
+            return Constants::KDTREE_EMPTY_SET_VARIANCE;
         }
 
         values.push_back( ( *it )[ axis ] );
@@ -148,6 +156,29 @@ Utils::minMaxPerAxis( const Types::Points< T >& points )
     }
 
     return minMaxPerAxis;
+}
+
+template< typename T >
+double
+Utils::distance( const Types::Point< T >& p1, const Types::Point< T >& p2 )
+{
+    // Sanity
+    if ( p1.size() != p2.size() )
+    {
+        return Constants::KDTREE_INVALID_POINT_DISTANCE;
+    }
+
+    double dist2 = 0.0L;
+
+    typename Types::Point< T >::const_iterator it1 = p1.cbegin();
+    typename Types::Point< T >::const_iterator it2 = p2.cbegin();
+    for ( ;it1 != p1.cend() && it2 != p2.cend(); ++it1, ++it2 )
+    {
+        double temp = ( *it1 ) - ( *it2 );
+        dist2 += temp * temp;
+    }
+
+    return sqrt( dist2 );
 }
 
 } // namespace datastructures
