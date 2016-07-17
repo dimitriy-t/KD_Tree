@@ -50,13 +50,13 @@ public:
         // when overloaded.
 
     // PRIMARY INTERFACE
-    //TODO: throw?
-    void serialize( const std::string& filename ) const;
-        // Writes the tree to the provided file location
+    bool serialize( const std::string& filename ) const;
+        // Writes the tree to the provided file location.
+        // Returns true on success and false otherwise.
 
-    //TODO: throw?
-    void deserialize( const std::string& filename );
+    bool deserialize( const std::string& filename );
         // Loads the contents of the data via the contents of the file
+        // Returns true on success and false otherwise.
 
     const Types::Point< T >& nearestPoint(
             const Types::Point< T >& point ) const;
@@ -170,17 +170,19 @@ bool KDTree< T >::operator!=(
 //                  PRIMARY INTERFACE
 //============================================================================
 template< typename T >
-void
+bool
 KDTree< T >::serialize( const std::string& filename ) const
 {
     std::cout << "Implement me!" << std::endl;
+    return false;
 }
 
 template< typename T >
-void
+bool
 KDTree< T >::deserialize( const std::string& filename )
 {
     std::cout << "Implement me!" << std::endl;
+    return false;
 }
 
 template< typename T >

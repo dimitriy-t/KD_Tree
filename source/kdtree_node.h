@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <memory>
-#include <limits>
 #include <sstream>
 
 #include "kdtree_types.h"
@@ -21,55 +20,60 @@ public:
 
     // CREATORS
     KDNode();
-        // default constructor
+        // Default constructor
 
-    //TODO: implement
     KDNode( const size_t                           hyperplaneIndex,
             const T                                value,
             const std::shared_ptr< KDNode< T > >&  left,
-            const std::shared_ptr< KDNode< T > >&  right );
-        // constructor
+            const std::shared_ptr< KDNode< T > >&  right,
+            const size_t                           leafIndex );
+        // Constructor
 
     KDNode( const KDNode& other );
-        // copy constructor, calls copy().
+        // Copy constructor, calls copy().
 
     virtual ~KDNode();
-        // destructor
+        // Destructor
 
     // OPERATORS
     KDNode& operator=( const KDNode& other );
-        // assignment operator. Calls copy; do this in child classes
-        // when overloaded.
+        // Assignment operator. Calls copy.
+        // Note that this operator performs a shallow copy as its
+        // use is targeted at containers.
 
     bool operator==( const KDNode& other ) const;
-        // equality. Calls equals, do this in child classes
-        // when overloaded.
+        // Equality. Calls equals.
 
     bool operator!=( const KDNode& other ) const;
-        // non-equality.  Calls equals, do this in child classes
-        // when overloaded.
+        // Non-equality. Calls equals.
 
     // PRIMARY INTERFACE
-    size_t hyperplaneIndex() const;
-        // returns index of the hyperplane defined by this node
+    const size_t hyperplaneIndex() const;
+        // Returns index of the hyperplane defined by this node
 
-    T value() const;
-        // return value of this node - i.e. position of the hyperplane
-        // defined by this node
+    const T value() const;
+        // Return value of this node - i.e. position of the hyperplane
+        // defined by this node.
+        // Note that value of this type is not set by default dtor
 
     std::shared_ptr< KDNode< T > > left() const;
-        // return shared pointer to the left subtree
+        // Return shared pointer to the left subtree
 
     std::shared_ptr< KDNode< T > > right() const;
-        // return shared pointer to the right subtree
+        // Return shared pointer to the right subtree
+
+    const size_t leafIndex() const;
+        // Return index of the point stored in KDTree that this node
+        // represents. Note that non-leaf nodes will return
+        // Defaults::KDTREE_NONLEAF_INDEX
 
     // MANIPULATORS
     void copy( const KDNode& other );
-        // copies the value of other into this
+        // Copies the value of other into this
 
     // ACCESSORS
     bool equals( const KDNode& other ) const;
-        // worker for equality - call this in child classes when overloading
+        // Worker for equality - call this in child classes when overloading
         // == and != operator
 
     std::ostream& print( std::ostream& out ) const;
@@ -78,17 +82,22 @@ public:
 
 private:
     size_t                             m_hyperplaneIndex;
-        // defines the index of the hyperplane
+        // Defines the index of the hyperplane
 
     T                                  m_value;
-        // position of the hyperplane, left subtree is less or equal, right
-        // subtree is greate
+        // Position of the hyperplane, left subtree is less or equal, right
+        // subtree is greater
 
     std::shared_ptr< KDNode< T > >     m_left;
-        // left subtree
+        // Left subtree
 
     std::shared_ptr< KDNode< T > >     m_right;
-        // right subtree
+        // Right subtree
+
+    size_t                             m_leafIndex;
+        // Index of the point in the KDTree internal structure. Note that
+        // this value is set Defaults::KDTREE_NONLEAF_INDEX for all
+        // non-leaf nodes.
 };
 
 // INDEPENDENT OPERATORS
@@ -99,13 +108,13 @@ std::ostream& operator<<( std::ostream& lhs,
 //============================================================================
 //                  CREATORS
 //============================================================================
-// TODO: move invalid things to Defaults
+
 template< typename T >
 KDNode< T >::KDNode()
-: m_hyperplaneIndex( std::numeric_limits< size_t >::max() )
-, m_value( std::numeric_limits< T >::max() )
-, m_left( NULL )
-, m_right( NULL )
+: m_hyperplaneIndex( Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX )
+, m_left(            NULL )
+, m_right(           NULL )
+, m_leafIndex(       Defaults::KDTREE_NONLEAF_INDEX )
 {
     // nothing to do here
 }
@@ -114,11 +123,13 @@ template< typename T >
 KDNode< T >::KDNode( const size_t                           hyperplaneIndex,
                      const T                                value,
                      const std::shared_ptr< KDNode< T > >&  left,
-                     const std::shared_ptr< KDNode< T > >&  right )
+                     const std::shared_ptr< KDNode< T > >&  right,
+                     const size_t                           leafIndex )
 : m_hyperplaneIndex( hyperplaneIndex )
-, m_value( value )
-, m_left( left)
-, m_right( right )
+, m_value(           value )
+, m_left(            left)
+, m_right(           right )
+, m_leafIndex(       leafIndex )
 {
     // nothing to do here
 }
@@ -165,14 +176,14 @@ bool KDNode< T >::operator!=(
 //                  PRIMARY INTERFACE
 //============================================================================
 template< typename T >
-size_t
+const size_t
 KDNode< T >::hyperplaneIndex() const
 {
     return m_hyperplaneIndex;
 }
 
 template< typename T >
-T
+const T
 KDNode< T >::value() const
 {
     return m_value;
@@ -192,6 +203,13 @@ KDNode< T >::right() const
     return m_right;
 }
 
+template< typename T >
+const size_t
+KDNode< T >::leafIndex() const
+{
+    return m_leafIndex;
+}
+
 //============================================================================
 //                  MANIPULATORS
 //============================================================================
@@ -204,6 +222,7 @@ KDNode< T >::copy( const KDNode< T >& other )
     m_value           = other.value();
     m_left            = other.left();
     m_right           = other.right();
+    m_leafIndex       = other.leafIndex();
 }
 
 //============================================================================
@@ -218,7 +237,8 @@ KDNode< T >::equals(
     return ( ( other.hyperplaneIndex() == m_hyperplaneIndex ) &&
              ( other.value()           == m_value           ) &&
              ( other.left()            == m_left            ) &&
-             ( other.right()           == m_right           ) );
+             ( other.right()           == m_right           ) &&
+             ( other.leafIndex()       == m_leafIndex       ) );
 }
 
 template< typename T >
@@ -226,10 +246,11 @@ std::ostream&
 KDNode< T >::print( std::ostream& out ) const
 {
     out << "KDNode:["
-        << "hyperplane index = '" << m_hyperplaneIndex   << "', "
-        << "value = '"            << m_value             << "', "
-        << "left ptr = '"         << std::hex << m_left  << "', "
-        << "right ptr = '"        << std::hex << m_right << "']";
+        << "hyperplane index = '" << std::dec << m_hyperplaneIndex << "', "
+        << "value = '"            << std::dec << m_value           << "', "
+        << "left ptr = '"         << std::hex << m_left            << "', "
+        << "right ptr = '"        << std::hex << m_right           << "', "
+        << "leaf index = '"       << std::hex << m_leafIndex       << "']";
 
     return out;
 }

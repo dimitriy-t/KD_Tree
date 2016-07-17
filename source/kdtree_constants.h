@@ -6,15 +6,18 @@
 namespace datastructures {
 
 struct Defaults {
+    static const std::size_t KDTREE_UNINITIALIZED_HYPERPLANE_INDEX;
+    // Used in default ctor to signify uninitialized value of
+    // divisor hyperplane index
+
+    static const std::size_t KDTREE_NONLEAF_INDEX;
+    // Index stored in non-leaf KDNode objects
+
     static const std::size_t KDTREE_EMPTY_SET_VARIANCE;
-        // Defines a variance of an empty set
+    // Defines a variance of an empty set
 
     static const std::size_t KDTREE_EMPTY_SET_MEDIAN;
-        // Defines a median of an empty set
-};
-
-struct Constants {
-
+    // Defines a median of an empty set
 };
 
 } // namespace datastructures
