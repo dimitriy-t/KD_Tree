@@ -6,6 +6,7 @@
 #include "kdtree_types.h"
 #include "kdtree_node.h"
 #include "kdtree_hyperplane.h"
+#include "kdtree_utils.h"
 
 // @Purpose
 //
@@ -69,11 +70,8 @@ public:
         // primarily for testing.
 
 protected:
-    //TODO: might need to include exclusion plane
-    //TODO: this might need to have points only
     virtual const KDHyperplane< T > chooseBestSplit(
-            const Types::Points< T >& points,
-            const size_t plane ) const;
+            const Types::Points< T >& points ) const;
         // To be overloaded by children when extending the vanilla KDTree
         // Serves as a heuristics in determining optimal hyperplane to split the
         // provided points.
@@ -206,11 +204,12 @@ KDTree< T >::points() const
 }
 template< typename T >
 const KDHyperplane< T >
-KDTree< T >::chooseBestSplit( const Types::Points< T >& points,
-                              const size_t plane ) const
+KDTree< T >::chooseBestSplit( const Types::Points< T >& points ) const
 {
-    std::cout << "Implement me!" << std::endl;
-    return KDHyperplane< T >();
+    const size_t axis  = Utils::axisOfHighestVariance( points );
+    const T      value = Utils::medianValueInAxis( points, axis );
+
+    return KDHyperplane< T >( axis, value );
 }
 
 //template< typename T >
@@ -260,8 +259,7 @@ KDTree< T >::print( std::ostream& out ) const
 //                  INDEPENDENT OPERATORS
 //============================================================================
 template< typename T >
-std::ostream& operator<<( std::ostream& lhs,
-                          const KDTree< T >& rhs )
+std::ostream& operator<<( std::ostream& lhs, const KDTree< T >& rhs )
 {
     return rhs.print( lhs );
 }
