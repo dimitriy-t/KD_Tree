@@ -31,17 +31,20 @@ std::ostream& operator<<( std::ostream& lhs, const Types::Point< T >& rhs )
 
     if ( rhs.size() )
     {
-        lhs << ", pos = (";
+        lhs << ", pos = ( ";
 
-        for ( size_t i = 0; i < rhs.size() - 1; ++i )
+        typename Types::Point< T >::const_iterator it = rhs.cbegin();
+        lhs << "'" << std::dec << ( *it ) << "'";
+        ++it;
+        for ( ; it != rhs.cend(); ++it )
         {
-            lhs << "'" << std::dec << rhs[ i ] << "', ";
+            lhs << ", '" << std::dec << ( *it ) << "' ";
         }
 
-        lhs << " '" << std::dec << rhs[ rhs.size() - 1 ] << "')";
+        lhs << ") ";
     }
 
-    lhs << " ]";
+    lhs << "]";
 
     return lhs;
 }
@@ -56,14 +59,12 @@ std::ostream& operator<<( std::ostream& lhs, const Types::Points< T >& rhs )
 
     if ( rhs.size() )
     {
-        lhs << ", ";
 
-        for ( size_t i = 0; i < rhs.size() - 1; ++i )
+        for ( typename Types::Points< T >::const_iterator it = rhs.cbegin();
+              it != rhs.cend(); ++it )
         {
-            lhs << rhs[ i ] << ", ";
+            lhs << ", " << std::dec << ( *it );
         }
-
-        lhs << rhs[ rhs.size() - 1 ];
     }
 
     lhs << " ]";
