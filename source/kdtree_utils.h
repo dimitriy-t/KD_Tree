@@ -9,6 +9,7 @@
 
 #include "kdtree_types.h"
 #include "kdtree_constants.h"
+#include "kdtree_hyperplane.h"
 
 // @Purpose
 //
@@ -43,6 +44,12 @@ struct Utils {
         // KDTREE_INVALID_POINT_DISTANCE in case points are of different
         // cardinality
 
+    template< typename T >
+    static double
+    distance( const Types::Point< T >& p, const KDHyperplane< T >& plane );
+        // Computed distance between two points. Returns
+        // KDTREE_INVALID_DISTANCE in case points are of different
+        // cardinality
 };
 
 //============================================================================
@@ -165,7 +172,7 @@ Utils::distance( const Types::Point< T >& p1, const Types::Point< T >& p2 )
     // Sanity
     if ( p1.size() != p2.size() )
     {
-        return Constants::KDTREE_INVALID_POINT_DISTANCE;
+        return Constants::KDTREE_INVALID_DISTANCE;
     }
 
     double dist2 = 0.0L;
@@ -179,6 +186,19 @@ Utils::distance( const Types::Point< T >& p1, const Types::Point< T >& p2 )
     }
 
     return sqrt( dist2 );
+}
+
+template< typename T >
+double
+Utils::distance( const Types::Point< T >& p, const KDHyperplane< T >& plane )
+{
+    // Sanity
+    if ( p.size() <= plane.hyperplaneIndex() )
+    {
+        return Constants::KDTREE_INVALID_DISTANCE;
+    }
+
+    return std::abs( p[ plane.hyperplaneIndex() ] - plane.value() ) ;
 }
 
 } // namespace datastructures

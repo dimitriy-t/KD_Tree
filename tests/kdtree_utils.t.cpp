@@ -2,6 +2,7 @@
 
 #include "kdtree_types.h"
 #include "kdtree_utils.h"
+#include "kdtree_constants.h"
 
 using namespace datastructures;
 
@@ -13,6 +14,7 @@ namespace {
 
 typedef Types::Point< int >   TestPoint;
 typedef Types::Points< int >  TestPoints;
+typedef KDHyperplane< int >   TestHyperplane;
 
 //////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
@@ -156,7 +158,7 @@ TEST( Utils, AxisOfHighestVariance )
     ASSERT_EQ( Utils::axisOfHighestVariance< int >( sanityData ), 2u );
 }
 
-TEST( Utils, Distance )
+TEST( Utils, DistanceBetweenPoints )
 {
     TestPoint p1;
     p1.push_back( 3 );
@@ -175,6 +177,31 @@ TEST( Utils, Distance )
     p4.push_back( 0 );
 
     ASSERT_EQ( 5.0L, Utils::distance( p3, p4 ) );
+
+    ASSERT_EQ( Constants::KDTREE_INVALID_DISTANCE,
+               Utils::distance( p1, p3 ) );
+}
+
+TEST( Utils, DistancePointToPlane )
+{
+    TestPoint p1;
+    p1.push_back( 3 );
+
+    TestHyperplane hyperplane1( 0u, 1 );
+
+    ASSERT_EQ( 2.0L, Utils::distance( p1, hyperplane1 ) );
+
+    TestPoint p2;
+    p2.push_back( 1 );
+    p2.push_back( 2 );
+    p2.push_back( 3 );
+
+    TestHyperplane hyperplane2( 1u, 0 );
+
+    ASSERT_EQ( 2.0L, Utils::distance( p2, hyperplane2 ) );
+
+    ASSERT_EQ( Constants::KDTREE_INVALID_DISTANCE,
+               Utils::distance( p1, hyperplane2 ) );
 }
 
 } // namespace

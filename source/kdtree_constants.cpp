@@ -19,7 +19,7 @@ const std::size_t Constants::KDTREE_EMPTY_SET_MEDIAN
 const std::string Constants::KDTREE_SIMPLE_VARIETY
     = "Simple KDTree Implementations";
 
-const double Constants::KDTREE_INVALID_POINT_DISTANCE
+const double Constants::KDTREE_INVALID_DISTANCE
     = -1.0L;
 
 } // namespace datastructures

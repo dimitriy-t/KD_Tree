@@ -24,7 +24,7 @@ struct Constants {
     static const std::string KDTREE_SIMPLE_VARIETY;
         // Denotes a plain vanilla KDTree implementations
 
-    static const double KDTREE_INVALID_POINT_DISTANCE;
+    static const double KDTREE_INVALID_DISTANCE;
         // Denotes an error output resulting from an attemp to
         // calculate distance between points of different
         // cardinality
