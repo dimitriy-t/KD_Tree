@@ -336,4 +336,36 @@ TEST( KDTree, FarilyRaindomSanity )
     ASSERT_EQ( sanityData, sanityTree.points() );
 }
 
+TEST( KDTree, SearchOnEmptyTree )
+{
+    TestKDTree sanityTree;
+    std::cout << sanityTree << std::endl;
+
+    TestPoint pointOfInterest;
+    pointOfInterest.push_back( 0 );
+
+    std::cout << "about to search" << std::endl;
+
+    ASSERT_EQ( pointOfInterest, sanityTree.nearestPoint( pointOfInterest ) );
+
+    std::cout << "search done" << std::endl;
+}
+
+//TEST( KDTree, SearchOnOneNode )
+//{
+//    TestPoint p1;
+//    p1.push_back( 0 );
+//
+//    TestPoints sanityData;
+//    sanityData.insert( p1 );
+//
+//    TestKDTree sanityTree( sanityData  );
+//    std::cout << sanityTree << std::endl;
+//
+//    TestPoint pointOfInterest;
+//    p1.push_back( 0 );
+//
+//    ASSERT_EQ( sanityData, sanityTree.points() );
+//}
+
 } // namespace

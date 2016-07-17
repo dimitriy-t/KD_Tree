@@ -22,4 +22,7 @@ const std::string Constants::KDTREE_SIMPLE_VARIETY
 const double Constants::KDTREE_INVALID_DISTANCE
     = -1.0L;
 
+const double Constants::KDTREE_MAX_DISTANCE
+    = std::numeric_limits< double >::max();
+
 } // namespace datastructures

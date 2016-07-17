@@ -28,6 +28,11 @@ struct Constants {
         // Denotes an error output resulting from an attemp to
         // calculate distance between points of different
         // cardinality
+
+    static const double KDTREE_MAX_DISTANCE;
+        // Denotes an error output resulting from an attemp to
+        // calculate distance between points of different
+        // cardinality
 };
 
 } // namespace datastructures
