@@ -90,9 +90,7 @@ protected:
         // format
 
 private:
-    //TODO: fix this part in a nice way!
-//    void build( std::shared_ptr< KDNode< T > > root,
-//                Types::Points< T >             points );
+    std::shared_ptr< KDNode< T > > build( const Types::Points< T > points );
         // Function that builds the recursive bisection of the tree, as
         // described by the assignment specification. Calls chooseBestSplit()
         // at each level of recursion until leaf nodes is reached.
@@ -101,6 +99,7 @@ private:
     std::shared_ptr< KDNode< T > >     m_root;
         // Root node of this KD Tree
 
+    //TODO: needed?
     Types::Points< T >                 m_points;
         // A list of all points existing in a tree
 
@@ -123,17 +122,16 @@ KDTree< T >::KDTree()
 
 template< typename T >
 KDTree< T >::KDTree( const Types::Points< T >& points )
-: m_points( points )
+: m_points( points ) // TODO: needed?
 {
-    std::cout << "Implement the rest!" << std::endl;
-   // build();
+    m_root = build( m_points );
 }
 
 template< typename T >
 KDTree< T >::KDTree( const KDTree& other )
 {
     copy( other );
-  //  build();
+    m_root = build( m_points );
 }
 
 template< typename T >
@@ -151,7 +149,7 @@ KDTree< T >&
 KDTree< T >::operator=( const KDTree< T >& other )
 {
     copy( other );
-   // build();
+    m_root = build( m_points );
     return *this;
 }
 
@@ -212,12 +210,45 @@ KDTree< T >::chooseBestSplit( const Types::Points< T >& points ) const
     return KDHyperplane< T >( axis, value );
 }
 
-//template< typename T >
-//void
-//KDTree< T >::build()
-//{
-//    std::cout << "Implement me!" << std::endl;
-//}
+template< typename T >
+std::shared_ptr< KDNode< T > >
+KDTree< T >::build( const Types::Points< T > points )
+{
+    // Base Case
+    if ( points.size() == 1u )
+    {
+        //TODO: fix this, memory leak!
+        // Make a leaf
+        return std::shared_ptr< KDNode< T > >(
+                new KDNode< T >( &points[ 0 ] ) );
+    }
+
+    // Recursive case
+    const KDHyperplane< T > hyperplane = chooseBestSplit( points );
+
+    Types::Points< T > leftPoints;
+    Types::Points< T > rightPoints;
+
+    for ( typename Types::Points< T >::const_iterator it = points.cbegin();
+          it != points.cend(); ++it )
+    {
+        if ( ( *it )[ hyperplane.hyperplaneIndex() ] < hyperplane.value() )
+        {
+            leftPoints.push_back( *it );
+        }
+        else
+        {
+            rightPoints.push_back( *it );
+        }
+    }
+
+    std::shared_ptr< KDNode< T > > leftSubtree(  build( leftPoints  ) );
+    std::shared_ptr< KDNode< T > > rightSubtree( build( rightPoints ) );
+
+    return std::shared_ptr< KDNode< T > >( new KDNode< T >( hyperplane,
+                                                            leftSubtree,
+                                                            rightPoints ) );
+}
 
 //============================================================================
 //                  MANIPULATORS
@@ -227,7 +258,7 @@ template< typename T >
 void
 KDTree< T >::copy( const KDTree< T >& other )
 {
-    std::cout << "Implement me!" << std::endl;
+    m_points   = other.points();
 }
 
 //============================================================================
@@ -236,11 +267,9 @@ KDTree< T >::copy( const KDTree< T >& other )
 
 template< typename T >
 bool
-KDTree< T >::equals(
-        const KDTree< T >& other ) const
+KDTree< T >::equals( const KDTree< T >& other ) const
 {
-    std::cout << "Implement me!" << std::endl;
-    return false;
+    return ( ( other.points() == m_points ) );
 }
 
 template< typename T >

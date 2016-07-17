@@ -25,9 +25,11 @@ public:
 
     KDNode( const KDHyperplane< T >&               hyperplane,
             const std::shared_ptr< KDNode< T > >&  left,
-            const std::shared_ptr< KDNode< T > >&  right,
-            const Types::Point< T >*               leafI );
-        // Constructor
+            const std::shared_ptr< KDNode< T > >&  right );
+        // Non-leaf Constructor
+
+    KDNode( const Types::Point< T >* leaf );
+        // Leaf Constructor
 
     KDNode( const KDNode& other );
         // Copy constructor, calls copy().
@@ -57,8 +59,7 @@ public:
     std::shared_ptr< KDNode< T > > right() const;
         // Return shared pointer to the right subtree
 
-    //TODO: think about making this a special leaf node class that always
-    //      has a reference to a Point
+    //TODO: think about making this a special leaf node class that always has a reference to a Point
     const Types::Point< T >* leafPointPtr() const;
         // Return pointer of the point stored in KDTree that this node
         // represents. Note that non-leaf nodes will return
@@ -113,11 +114,18 @@ KDNode< T >::KDNode()
 template< typename T >
 KDNode< T >::KDNode( const KDHyperplane< T >&               hyperplane,
                      const std::shared_ptr< KDNode< T > >&  left,
-                     const std::shared_ptr< KDNode< T > >&  right,
-                     const Types::Point< T >*               leafPointPtr )
+                     const std::shared_ptr< KDNode< T > >&  right )
 : m_hyperplane(   hyperplane )
 , m_left(         left )
 , m_right(        right )
+{
+    // nothing to do here
+}
+
+template< typename T >
+KDNode< T >::KDNode( const Types::Point< T >* leafPointPtr )
+: m_left(         nullptr )
+, m_right(        nullptr )
 , m_leafPointPtr( leafPointPtr )
 {
     // nothing to do here
