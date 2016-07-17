@@ -47,9 +47,110 @@ public:
 // HELPER FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
 
+double distance( const TestPoint& p1, const TestPoint& p2 )
+{
+    // Sanity
+    if ( p1.size() != p2.size() )
+    {
+        std::cerr << "*** TEST DATA INCORRECT, POINT CARDINALITY MISMATCH ***"
+                  << std::endl;
+
+        return -1.0L;
+    }
+
+    double dist2 = 0.0L;
+
+    typename TestPoint::const_iterator it1 = p1.cbegin();
+    typename TestPoint::const_iterator it2 = p2.cbegin();
+    for (;it1 != p1.cend() && it2 != p2.cend(); ++it1, ++it2 )
+    {
+        double temp = ( *it1 ) - ( *it2 );
+        dist2 += temp * temp;
+    }
+
+    return sqrt( dist2 );
+}
+
+TestPoint bruteForceClosest( const TestPoints& points,
+                             const TestPoint& pointOfInterest )
+{
+    // Sanity
+    if ( !points.size() )
+    {
+        return TestPoint();
+    }
+
+    typename TestPoints::const_iterator it = points.cbegin();
+    TestPoint closestSoFar = ( *it );
+    double smallestDist = distance( pointOfInterest, ( *it ) );
+    ++it;
+
+    std::cout << smallestDist << std::endl;
+
+    for (;it != points.cend(); ++it )
+    {
+        const double temp = distance( pointOfInterest, ( *it ) );
+        if ( temp < smallestDist )
+        {
+            smallestDist = temp;
+            closestSoFar = ( *it );
+        }
+    }
+
+    return closestSoFar;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // TEST FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
+
+TEST( Helpers, TestDistance )
+{
+    TestPoint p1;
+    p1.push_back( 3 );
+
+    TestPoint p2;
+    p2.push_back( 4 );
+
+    ASSERT_EQ( 1.0L, distance( p1, p2 ) );
+
+    TestPoint p3;
+    p3.push_back( 0 );
+    p3.push_back( 3 );
+
+    TestPoint p4;
+    p4.push_back( 4 );
+    p4.push_back( 0 );
+
+    ASSERT_EQ( 5.0L, distance( p3, p4 ) );
+}
+
+TEST( Helpers, TestBruteForceClosest )
+{
+    TestPoint p1;
+    p1.push_back( -1 ); // x
+    p1.push_back(  1 ); // y
+
+    TestPoint p2;
+    p2.push_back( 0 ); // x
+    p2.push_back( 1 ); // y
+
+    TestPoint p3;
+    p3.push_back( 1 ); // x
+    p3.push_back( 1 ); // y
+
+    TestPoints points;
+    points.insert( p1 );
+    points.insert( p2 );
+    points.insert( p3 );
+
+    TestPoint pOfInterest;
+    pOfInterest.push_back( 0 ); // x
+    pOfInterest.push_back( 0 ); // y
+
+    ASSERT_EQ( bruteForceClosest( points, pOfInterest ), p2 );
+}
+
 
 TEST( KDTree, TestZero )
 {
