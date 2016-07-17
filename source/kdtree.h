@@ -65,19 +65,12 @@ public:
         // Returns const ref the closes point in a tree to the point provided
         // in case the tree is empty - point itself is returned.
 
-    const Types::Points< T >& points() const;
+    const Types::Points< T > points() const;
         // Returns the set of points represented by this KDTree. Used
         // primarily for testing.
 
     const std::string& type() const;
         // Returns type of this KDTree object
-
-protected:
-    virtual const KDHyperplane< T > chooseBestSplit(
-            const Types::Points< T >& points ) const;
-        // To be overloaded by children when extending the vanilla KDTree
-        // Serves as a heuristics in determining optimal hyperplane to split the
-        // provided points.
 
     // MANIPULATORS
     void copy( const KDTree& other );
@@ -92,11 +85,23 @@ protected:
         // Prints the contents of the KDTree object in a easy to read
         // format
 
+protected:
+    virtual const KDHyperplane< T > chooseBestSplit(
+            const Types::Points< T >& points ) const;
+        // To be overloaded by children when extending the vanilla KDTree
+        // Serves as a heuristics in determining optimal hyperplane to split the
+        // provided points.
+
 private:
     std::shared_ptr< KDNode< T > > build( const Types::Points< T > points );
         // Function that builds the recursive bisection of the tree, as
         // described by the assignment specification. Calls chooseBestSplit()
         // at each level of recursion until leaf nodes is reached.
+
+    void reassemblePoints( std::shared_ptr< KDNode< T > > node,
+                           Types::Points< T >& points ) const;
+        // A recursive Helper function. Assemble all the stored points in
+        // the tree into a container
 
 protected:
     std::shared_ptr< KDNode< T > >     m_root;
@@ -132,6 +137,7 @@ KDTree< T >::KDTree( const Types::Points< T >& points )
 
 template< typename T >
 KDTree< T >::KDTree( const KDTree& other )
+: m_type( Defaults::KDTREE_SIMPLE_VARIETY )
 {
     copy( other );
 }
@@ -197,12 +203,12 @@ KDTree< T >::nearestPoint( const Types::Point< T >& point ) const
 }
 
 template< typename T >
-const Types::Points< T >&
+const Types::Points< T >
 KDTree< T >::points() const
 {
-    std::cout << "Implement me!" << std::endl;
-    static const Types::Points< T > tempPoints;
-    return tempPoints;
+    Types::Points< T > points;
+    reassemblePoints( m_root, points );
+    return points;
 }
 
 template< typename T >
@@ -226,6 +232,14 @@ template< typename T >
 std::shared_ptr< KDNode< T > >
 KDTree< T >::build( const Types::Points< T > points )
 {
+    // Sanity
+    if ( !points.size() )
+    {
+        std::cerr << "KDTree< T >::build() points container is empty"
+                  << std::endl;
+        return std::shared_ptr< KDNode< T > >( nullptr );
+    }
+
     // Base Case
     if ( points.size() == 1u )
     {
@@ -262,6 +276,27 @@ KDTree< T >::build( const Types::Points< T > points )
                                                             rightSubtree ) );
 }
 
+template< typename T >
+void
+KDTree< T >::reassemblePoints( std::shared_ptr< KDNode< T > > node,
+                               Types::Points< T >& points ) const
+{
+    // Base Case
+    if ( nullptr == node )
+    {
+        return;
+    }
+
+    if ( node->isLeaf() )
+    {
+        points.insert( node->leafPoint() );
+    }
+
+    // Recursive Case
+    reassemblePoints( node->left(), points );
+    reassemblePoints( node->right(), points );
+}
+
 //============================================================================
 //                  MANIPULATORS
 //============================================================================
@@ -282,7 +317,7 @@ bool
 KDTree< T >::equals( const KDTree< T >& other ) const
 {
     return ( ( other.type()    == m_type ) &&
-             ( other.points()) == points() );
+             ( other.points()  == points() ) );
 }
 
 template< typename T >
@@ -290,9 +325,8 @@ std::ostream&
 KDTree< T >::print( std::ostream& out ) const
 {
     out << "KDTree:[ "
-        << "implementation type = '" << m_type << "', "
-        << "num points stored = " << points().size() << " "
-        << "']";
+        << "implementation type = '" << m_type          << "', "
+        << "num points stored = "    << points().size() << "] ";
 
     return out;
 }

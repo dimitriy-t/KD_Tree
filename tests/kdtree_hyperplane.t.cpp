@@ -12,6 +12,8 @@ namespace {
 // LOCAL TYPES AND DEFINITIONS
 //////////////////////////////////////////////////////////////////////////////
 
+typedef KDHyperplane< int >   TestHyperplane;
+
 //////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
@@ -23,14 +25,14 @@ namespace {
 TEST( KDHyperplane, TestZero )
 {
     // initial object
-    KDHyperplane< int > zero;
+    TestHyperplane zero;
     
     ASSERT_TRUE( zero == zero );
     ASSERT_TRUE( !( zero != zero ) );
     ASSERT_TRUE( zero.equals( zero ) );
     
     // Empty configs must be equivalent
-    KDHyperplane< int > zero2;
+    TestHyperplane zero2;
     
     ASSERT_TRUE( zero == zero2 );
     ASSERT_TRUE( !( zero != zero2 ) );
@@ -52,7 +54,7 @@ TEST( KDHyperplane, TestZero )
 
 TEST( KDHyperplane, TestUninitializedState )
 {
-    KDHyperplane< int > dummyHyperplane;
+    TestHyperplane dummyHyperplane;
 
     ASSERT_EQ( dummyHyperplane.hyperplaneIndex(),
             Defaults::KDTREE_UNINITIALIZED_HYPERPLANE_INDEX );
@@ -65,7 +67,7 @@ TEST( KDHyperplane, Sanity )
     const size_t hyperplaneIndex = 1u;
     const int    hyperplaneValue = 2;
 
-    KDHyperplane< int > dummyHyperplane( hyperplaneIndex,
+    TestHyperplane dummyHyperplane( hyperplaneIndex,
                                          hyperplaneValue );
 
     ASSERT_EQ( dummyHyperplane.hyperplaneIndex() , hyperplaneIndex );
@@ -73,13 +75,13 @@ TEST( KDHyperplane, Sanity )
 
     std::cout << dummyHyperplane << std::endl;
 
-    KDHyperplane< int > dummyHyperplane2 = dummyHyperplane;
+    TestHyperplane dummyHyperplane2 = dummyHyperplane;
     ASSERT_EQ( dummyHyperplane2.hyperplaneIndex() , hyperplaneIndex );
     ASSERT_EQ( dummyHyperplane2.value()           , hyperplaneValue );
 
     std::cout << dummyHyperplane2 << std::endl;
 
-    KDHyperplane< int > dummyHyperplane3 = dummyHyperplane;
+    TestHyperplane dummyHyperplane3( dummyHyperplane );
     ASSERT_EQ( dummyHyperplane3.hyperplaneIndex() , hyperplaneIndex );
     ASSERT_EQ( dummyHyperplane3.value()           , hyperplaneValue );
 

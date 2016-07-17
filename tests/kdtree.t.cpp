@@ -51,48 +51,52 @@ public:
 // TEST FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
 
-//TEST( KDTree, TestZero )
-//{
-//    // initial object
-//    KDTree< int > zero;
-//
-//    ASSERT_TRUE( zero == zero );
-//    ASSERT_TRUE( !( zero != zero ) );
-//    ASSERT_TRUE( zero.equals( zero ) );
-//
-//    // Empty configs must be equivalent
-//    KDTree< int > zero2;
-//
-//    ASSERT_TRUE( zero == zero2 );
-//    ASSERT_TRUE( !( zero != zero2 ) );
-//    ASSERT_TRUE( zero.equals( zero2 ) );
-//
-//    // copy of initial object
-//    KDTree< int > zeroCopy( zero );
-//    ASSERT_TRUE( zero == zeroCopy );
-//    ASSERT_TRUE( !( zero != zeroCopy ) );
-//    ASSERT_TRUE( zero.equals( zeroCopy ) );
-//
-//    // assign of initial object
-//    KDTree< int > zeroAssign;
-//    zeroAssign = zero;
-//    ASSERT_TRUE( zero == zeroAssign );
-//    ASSERT_TRUE( !( zero != zeroAssign ) );
-//    ASSERT_TRUE( zero.equals( zeroAssign ) );
-//}
+TEST( KDTree, TestZero )
+{
+    // initial object
+    TestKDTree zero;
 
-//TEST( KDTree, TestUninitializedState )
-//{
-//    KDTree< int > dummyNode;
-//    // Because horizontally aligned code blocks are just better!
-//    ASSERT_EQ( dummyNode.minNumThreads()                     , 0 );
-//}
+    ASSERT_TRUE( zero == zero );
+    ASSERT_TRUE( !( zero != zero ) );
+    ASSERT_TRUE( zero.equals( zero ) );
+
+    // Empty configs must be equivalent
+    TestKDTree zero2;
+
+    ASSERT_TRUE( zero == zero2 );
+    ASSERT_TRUE( !( zero != zero2 ) );
+    ASSERT_TRUE( zero.equals( zero2 ) );
+
+    // copy of initial object
+    TestKDTree zeroCopy( zero );
+
+    ASSERT_TRUE( zero == zeroCopy );
+    ASSERT_TRUE( !( zero != zeroCopy ) );
+    ASSERT_TRUE( zero.equals( zeroCopy ) );
+
+    // assign of initial object
+    TestKDTree zeroAssign;
+    zeroAssign = zero;
+    ASSERT_TRUE( zero == zeroAssign );
+    ASSERT_TRUE( !( zero != zeroAssign ) );
+    ASSERT_TRUE( zero.equals( zeroAssign ) );
+}
+
+TEST( KDTree, TestUninitializedState )
+{
+    TestKDTree dummyTree;
+    TestPoints dummyPoints;
+
+    ASSERT_EQ( dummyTree.root(),   nullptr );
+    ASSERT_EQ( dummyTree.points(), dummyPoints );
+    ASSERT_EQ( dummyTree.type(),   Defaults::KDTREE_SIMPLE_VARIETY );
+}
 
 //TEST( KDTree, TestPrint )
 //{
 //    std::cout << "Implement me!" << std::endl;
 //    ASSERT_TRUE( false );
-//    KDTree< int > dummyNode;
+//    TestKDTree dummyNode;
 //
 //    ASSERT_EQ( dummyNode.minNumThreads()                     , 0 );
 //    ASSERT_EQ( dummyNode.maxNumThreads()                     , 0 );
@@ -110,7 +114,7 @@ public:
 //    ASSERT_EQ( dummyNode.redisAddress().portmuxInstanceName(),
 //            Defaults::MGBUTRG_PORTMUX_DEFAULT_UNINIT_INSTANCE_NAME );
 //
-//    ASSERT_TRUE( dummyNode.init( "test_data/validKDTree< int >.cfg" ) );
+//    ASSERT_TRUE( dummyNode.init( "test_data/validTestKDTree.cfg" ) );
 //
 //    std::cout << dummyNode << std::endl;
 //}
@@ -137,18 +141,9 @@ TEST( KDTree, Sanity )
     sanityData.insert( p2 );
     sanityData.insert( p3 );
 
-    try
-    {
-        TestKDTree sanityTree( sanityData  );
+    TestKDTree sanityTree( sanityData  );
 
-        ASSERT_EQ( sanityData, sanityTree.points() );
-
-        ASSERT_TRUE( true );
-    }
-    catch( ... )
-    {
-        ASSERT_TRUE( false );
-    }
+    ASSERT_EQ( sanityData, sanityTree.points() );
 }
 
 } // namespace
