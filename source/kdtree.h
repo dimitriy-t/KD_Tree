@@ -247,7 +247,7 @@ KDTree< T >::build( const Types::Points< T > points )
 
     return std::shared_ptr< KDNode< T > >( new KDNode< T >( hyperplane,
                                                             leftSubtree,
-                                                            rightPoints ) );
+                                                            rightSubtree ) );
 }
 
 //============================================================================

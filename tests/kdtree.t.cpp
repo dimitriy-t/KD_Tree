@@ -30,10 +30,10 @@ public:
         // nothing to do here
     }
 
-    virtual const TestHyperplane chooseBestSplit( const TestPoints& points,
-                                                  const size_t plane ) const
+    virtual const TestHyperplane chooseBestSplit(
+            const TestPoints& points ) const
     {
-        return KDTree< int >::chooseBestSplit( points, plane );
+        return KDTree< int >::chooseBestSplit( points );
     }
 };
 

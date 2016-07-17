@@ -118,6 +118,7 @@ KDNode< T >::KDNode( const KDHyperplane< T >&               hyperplane,
 : m_hyperplane(   hyperplane )
 , m_left(         left )
 , m_right(        right )
+, m_leafPointPtr( nullptr )
 {
     // nothing to do here
 }
