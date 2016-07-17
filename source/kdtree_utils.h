@@ -54,6 +54,7 @@ Utils::axisOfHighestVariance( const Types::Points< T >& points )
     const Types::AxisMinMax< T > axisMinMax =
             Utils::minMaxPerAxis< T >( points );
 
+
     size_t axis = 0;
     T largestVariance = std::abs( axisMinMax[ 0 ].second -
                                   axisMinMax[ 0 ].first );
@@ -119,11 +120,10 @@ Utils::minMaxPerAxis( const Types::Points< T >& points )
         return minMaxPerAxis;
     }
 
-    minMaxPerAxis.reserve( points[ 0u ].size() );
-
     // Prime the mix/max
     typename Types::Points< T >::const_iterator it = points.cbegin();
 
+    minMaxPerAxis.reserve( ( *it ).size() );
     for ( size_t i = 0u; i < ( *it ).size(); ++i )
     {
         minMaxPerAxis.push_back( std::pair< T, T >( ( *it )[ i ], ( *it )[ i ] ) );

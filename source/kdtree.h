@@ -218,8 +218,9 @@ KDTree< T >::build( const Types::Points< T > points )
     if ( points.size() == 1u )
     {
         // Make a leaf node
+        typename Types::Points< T >::const_iterator it = points.cbegin();
         return std::shared_ptr< KDNode< T > >(
-                new KDNode< T >( points[ 0 ] ) );
+                new KDNode< T >( ( *it ) ) );
     }
 
     // Recursive case
@@ -233,11 +234,11 @@ KDTree< T >::build( const Types::Points< T > points )
     {
         if ( ( *it )[ hyperplane.hyperplaneIndex() ] < hyperplane.value() )
         {
-            leftPoints.push_back( *it );
+            leftPoints.insert( *it );
         }
         else
         {
-            rightPoints.push_back( *it );
+            rightPoints.insert( *it );
         }
     }
 

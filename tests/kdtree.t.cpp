@@ -128,9 +128,9 @@ TEST( KDTree, Sanity )
     p3.push_back( 8 );
 
     TestPoints sanityData;
-    sanityData.push_back( p1 );
-    sanityData.push_back( p2 );
-    sanityData.push_back( p3 );
+    sanityData.insert( p1 );
+    sanityData.insert( p2 );
+    sanityData.insert( p3 );
 
     try
     {
