@@ -62,8 +62,6 @@ TestPoint bruteForceClosest( const TestPoints& points,
     double smallestDist = Utils::distance< int >( pointOfInterest, ( *it ) );
     ++it;
 
-    std::cout << smallestDist << std::endl;
-
     for (;it != points.cend(); ++it )
     {
         const double temp = Utils::distance< int >( pointOfInterest, ( *it ) );
@@ -346,7 +344,7 @@ TEST( KDTree, SearchOnEmptyTree )
     ASSERT_EQ( TestPoint(), sanityTree.nearestPoint( pointOfInterest ) );
 }
 
-TEST( KDTree, SearchOnOneNode )
+TEST( KDTree, SearchTreeOnOneNode )
 {
     TestPoint p1;
     p1.push_back( 0 );
@@ -363,7 +361,7 @@ TEST( KDTree, SearchOnOneNode )
     ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest ) );
 }
 
-TEST( KDTree, SearchOnTwoNodes )
+TEST( KDTree, SearchTreeOnTwoNodes )
 {
     TestPoint p1;
     p1.push_back( -3 );
@@ -384,4 +382,121 @@ TEST( KDTree, SearchOnTwoNodes )
     ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest ) );
 }
 
+TEST( KDTree, SearchTreeOnThreeNodes )
+{
+    TestPoint p1;
+    p1.push_back( -3 ); // x
+    p1.push_back(  0 ); // y
+
+    TestPoint p2;
+    p2.push_back( 0 ); // x
+    p2.push_back( 0 ); // y
+
+    TestPoint p3;
+    p3.push_back( 4 ); // x
+    p3.push_back( 0 ); // y
+
+    TestPoints sanityPoints;
+    sanityPoints.insert( p1 );
+    sanityPoints.insert( p2 );
+    sanityPoints.insert( p3 );
+
+    TestKDTree sanityTree( sanityPoints );
+    std::cout << sanityTree << std::endl;
+
+    TestPoint pointOfInterest0;
+    pointOfInterest0.push_back( -100 ); // x
+    pointOfInterest0.push_back(  0 ); // y
+    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest0 ) );
+
+    TestPoint pointOfInterest1;
+    pointOfInterest1.push_back( -5 ); // x
+    pointOfInterest1.push_back(  0 ); // y
+    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest1 ) );
+
+    TestPoint pointOfInterest2;
+    pointOfInterest2.push_back( -2 ); // x
+    pointOfInterest2.push_back(  0 ); // y
+    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest2 ) );
+
+    TestPoint pointOfInterest3;
+    pointOfInterest3.push_back( -1 ); // x
+    pointOfInterest3.push_back(  0 ); // x
+    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest3 ) );
+
+    TestPoint pointOfInterest4;
+    pointOfInterest4.push_back( 0 ); // x
+    pointOfInterest4.push_back( 0 ); // x
+    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest4 ) );
+
+    TestPoint pointOfInterest5;
+    pointOfInterest5.push_back( 1 ); // x
+    pointOfInterest5.push_back( 0 ); // x
+    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest5 ) );
+
+    TestPoint pointOfInterest6;
+    pointOfInterest6.push_back( 3 ); // x
+    pointOfInterest6.push_back( 0 ); // x
+    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest6 ) );
+
+    TestPoint pointOfInterest7;
+    pointOfInterest7.push_back( 5 ); // x
+    pointOfInterest7.push_back( 0 ); // x
+    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest7 ) );
+
+    TestPoint pointOfInterest8;
+    pointOfInterest8.push_back( 100 ); // x
+    pointOfInterest8.push_back( 0 ); // x
+    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest8 ) );
+}
+
+TEST( KDTree, StressTest )
+{
+    TestPoint upperLeft;
+    upperLeft.push_back( -10 ); // x
+    upperLeft.push_back(  5 ); // y
+
+    TestPoint bottomLeft;
+    bottomLeft.push_back( -10 ); // x
+    bottomLeft.push_back( -5 ); // y
+
+    TestPoint upperRight;
+    upperRight.push_back( 11 ); // x
+    upperRight.push_back( 6 ); // y
+
+    TestPoint bottomRight;
+    bottomRight.push_back(  11 ); // x
+    bottomRight.push_back( -6 ); // y
+
+    TestPoints sanityPoints;
+    sanityPoints.insert( upperLeft );
+    sanityPoints.insert( bottomLeft );
+    sanityPoints.insert( upperRight );
+    sanityPoints.insert( bottomRight );
+
+    TestKDTree sanityTree( sanityPoints );
+    std::cout << sanityTree << std::endl;
+
+    std::vector< TestPoint > testPoints;
+    for ( int x = -15; x < 16; ++x )
+    {
+        for ( int y = -10; y < 10; ++y )
+        {
+            TestPoint test;
+            test.push_back( x );
+            test.push_back( y );
+            testPoints.push_back( test );
+        }
+    }
+
+    for ( typename std::vector< TestPoint >::const_iterator it
+              = testPoints.cbegin();
+          it < testPoints.cend(); ++it )
+    {
+        ASSERT_EQ( bruteForceClosest( sanityPoints, ( *it ) ),
+                   sanityTree.nearestPoint( *it ) );
+    }
+}
+
 } // namespace
+
