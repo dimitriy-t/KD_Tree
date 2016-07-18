@@ -17,7 +17,7 @@ const std::size_t Constants::KDTREE_EMPTY_SET_MEDIAN
     = 0u;
 
 const std::string Constants::KDTREE_SIMPLE_VARIETY
-    = "Simple KDTree Implementations";
+    = "Simple KDTree Implementation";
 
 const double Constants::KDTREE_INVALID_DISTANCE
     = -1.0L;

@@ -60,10 +60,11 @@ public:
         // Loads the contents of the data via the contents of the file
         // Returns true on success and false otherwise.
 
-    const Types::Point< T >& nearestPoint(
+    const Types::Point< T > nearestPoint(
             const Types::Point< T >& pointOfInterest ) const;
         // Returns const ref the closes point in a tree to the point of interest.
-        // In case the tree is empty - point itself is returned.
+        // In case the tree is empty or there is a cardinality mismatch -
+        // empty point is returned
         // Calls nearestPointHelper()
 
     const Types::Points< T > points() const;
@@ -104,11 +105,10 @@ private:
         // A recursive helper function. Assemble all the stored points in
         // the tree into a container
 
-    const Types::Point< T >& nearestPointHelper(
+    const Types::Point< T > nearestPointHelper(
             std::shared_ptr< KDNode< T > > root,
             const Types::Point< T >& pointOfInterest,
-            const Types::Point< T >& bestSoFar,
-            const double shortestSoFar ) const;
+            const Types::Point< T >& bestSoFar ) const;
         // A recursive helper function, finds the closes point in to the
         // point of interest
 
@@ -203,15 +203,12 @@ KDTree< T >::deserialize( const std::string& filename )
 }
 
 template< typename T >
-const Types::Point< T >&
+const Types::Point< T >
 KDTree< T >::nearestPoint( const Types::Point< T >& pointOfInterest ) const
 {
-    // Provide best guess
-    const Types::Point< T > empty;
     return nearestPointHelper( m_root,
                                pointOfInterest,
-                               empty,
-                               Constants:: KDTREE_MAX_DISTANCE );
+                               Types::Point< T >() );
 }
 
 template< typename T >
@@ -318,11 +315,10 @@ KDTree< T >::reassemblePoints( std::shared_ptr< KDNode< T > > node,
     reassemblePoints( node->right(), points );
 }
 template< typename T >
-const Types::Point< T >&
+const Types::Point< T >
 KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
                                  const Types::Point< T >& pointOfInterest,
-                                 const Types::Point< T >& bestSoFar,
-                                 const double shortestSoFar ) const
+                                 const Types::Point< T >& bestSoFar ) const
 {
     //TODO: remove
     std::cout << "================" << std::endl;
@@ -332,8 +328,8 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
     // Base case
     if ( nullptr == root )
     {
-        std::cout << "    root is empty, returning point itself "  << pointOfInterest << std::endl;
-        return pointOfInterest;
+        std::cout << "    root is empty, returning empty point"  << std::endl;
+        return Types::Point< T >();
     }
 
     if ( root->isLeaf() )
@@ -343,7 +339,8 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
         // Initial greedy search
         if ( bestSoFar.empty() )
         {
-            std::cout << "    best so far is empty, assigning" << std::endl;
+            std::cout << "    best so far is empty, returning leaf" << std::endl;
+            std::cout << "==== done ======" << std::endl;
             return root->leafPoint();
         }
 
@@ -359,17 +356,21 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
                       << "while points stored in the tree have "
                       << "cardinality = " << root->leafPoint().size() << " "
                       << std::endl;
-            return pointOfInterest;
+
+            std::cout << "==== done ======" << std::endl;
+            return Types::Point< T >();
         }
 
-        if ( distance < shortestSoFar )
+        if ( distance < Utils::distance< T >( bestSoFar, pointOfInterest ) )
         {
             std::cout << "    leaf is new best " << root->leafPoint() << std::endl;
+            std::cout << "==== done ======" << std::endl;
             return root->leafPoint();
         }
         else
         {
             std::cout << "    old best is better " << bestSoFar << std::endl;
+            std::cout << "==== done ======" << std::endl;
             return bestSoFar;
         }
     }
@@ -383,14 +384,15 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
                   << "cardinality of at least = "
                   << root->hyperplane().hyperplaneIndex() << " "
                   << std::endl;
-        return pointOfInterest;
+        std::cout << "==== done ======" << std::endl;
+        return Types::Point< T >();
     }
 
     // Recursive case
     std::shared_ptr< KDNode< T > > greedy;
     std::shared_ptr< KDNode< T > > other;
 
-    std::cout << "    *** root it not leaf" << root->leafPoint() << std::endl;
+    std::cout << "    *** root it not leaf, " << root->hyperplane() << std::endl;
 
     if ( pointOfInterest[ root->hyperplane().hyperplaneIndex() ] <
                 root->hyperplane().value() )
@@ -411,8 +413,7 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
     // First search greedily
     const Types::Point< T >& greedyBest = nearestPointHelper( root->left(),
                                                               pointOfInterest,
-                                                              bestSoFar,
-                                                              shortestSoFar );
+                                                              bestSoFar );
 
     std::cout << "        greedy best " << greedyBest << std::endl;
 
@@ -426,23 +427,23 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
     if ( Utils::distance< T >( pointOfInterest, root->hyperplane() ) <
             greedyShortestDist )
     {
+        std::cout << "       ** may be able to find and alternative " << std::endl;
         //TODO: remove
         const Types::Point< T >& alternative =
                 nearestPointHelper( other,
-                                   pointOfInterest,
-                                   greedyBest,
-                                   greedyShortestDist );
+                                    pointOfInterest,
+                                    greedyBest );
 
-        std::cout << "        alternative ? " << ( ( alternative == greedyBest ) ? "yes" : "no" )
+        std::cout << "        alternative ? " << ( ( alternative != greedyBest ) ? "yes" : "no" )
                   << std::endl;
 
         std::cout << "        alternative " << alternative << std::endl;
-
+        std::cout << "==== done ======" << std::endl;
         return alternative;
     }
 
     std::cout << "    returning " << greedyBest << std::endl;
-
+    std::cout << "==== done ======" << std::endl;
     return greedyBest;
 }
 

@@ -24,8 +24,6 @@ struct Types {
 template< typename T >
 std::ostream& operator<<( std::ostream& lhs, const Types::Point< T >& rhs )
 {
-    std::cout << std::endl;
-
     lhs << "Point:[ "
         << "cardinality = '" << std::dec << rhs.size() << "'";
 
@@ -38,10 +36,10 @@ std::ostream& operator<<( std::ostream& lhs, const Types::Point< T >& rhs )
         ++it;
         for ( ; it != rhs.cend(); ++it )
         {
-            lhs << ", '" << std::dec << ( *it ) << "' ";
+            lhs << ", '" << std::dec << ( *it ) << "'";
         }
 
-        lhs << ") ";
+        lhs << " ) ";
     }
 
     lhs << "]";
@@ -52,8 +50,6 @@ std::ostream& operator<<( std::ostream& lhs, const Types::Point< T >& rhs )
 template< typename T >
 std::ostream& operator<<( std::ostream& lhs, const Types::Points< T >& rhs )
 {
-    std::cout << std::endl;
-
     lhs << "Points:[ "
     << "size = '" << std::dec << rhs.size() << "'";
 
