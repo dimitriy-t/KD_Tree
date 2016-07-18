@@ -7,6 +7,7 @@
 #include "kdtree_node.h"
 #include "kdtree_hyperplane.h"
 #include "kdtree_utils.h"
+#include "kdtree_constants.h"
 
 // @Purpose
 //
@@ -241,9 +242,6 @@ template< typename T >
 std::shared_ptr< KDNode< T > >
 KDTree< T >::build( const Types::Points< T > points )
 {
-    //TODO: remove
-    //std::cout << "=======================" << std::endl;
-    //std::cout << "Entering create on : " << points << std::endl;
     // Sanity
     if ( !points.size() )
     {
@@ -255,9 +253,6 @@ KDTree< T >::build( const Types::Points< T > points )
     // Base Case
     if ( points.size() == 1u )
     {
-        //TODO: remove
-        //std::cout << "Base case, returning " << std::endl;
-
         // Make a leaf node
         typename Types::Points< T >::const_iterator it = points.cbegin();
         return std::shared_ptr< KDNode< T > >(
@@ -266,9 +261,6 @@ KDTree< T >::build( const Types::Points< T > points )
 
     // Recursive case
     const KDHyperplane< T > hyperplane = chooseBestSplit( points );
-
-    //TODO: remove
-    //std::cout << hyperplane << std::endl;
 
     Types::Points< T > leftPoints;
     Types::Points< T > rightPoints;
@@ -320,35 +312,22 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
                                  const Types::Point< T >& pointOfInterest,
                                  const Types::Point< T >& bestSoFar ) const
 {
-    //TODO: remove
-//    std::cout << "================" << std::endl;
-//    std::cout << "Searching for " << pointOfInterest << std::endl;
-//    std::cout << "Best so far " << bestSoFar << std::endl;
-
     // Base case
     if ( nullptr == root )
     {
-//        std::cout << "    root is empty, returning empty point"  << std::endl;
         return Types::Point< T >();
     }
 
     if ( root->isLeaf() )
     {
-//        std::cout << "    *** root it leaf" << root->leafPoint() << std::endl;
-
         // Initial greedy search
         if ( bestSoFar.empty() )
         {
-//            std::cout << "    best so far is empty, returning leaf" << std::endl;
-//            std::cout << "==== done ======" << std::endl;
             return root->leafPoint();
         }
 
         const double distance = Utils::distance< T >( root->leafPoint(),
                                                       pointOfInterest );
-
-//        std::cout << "    distance : " << distance << std::endl;
-
         if ( Constants::KDTREE_INVALID_DISTANCE == distance )
         {
             std::cerr << "Point cardinality mismatch. Point of interest has"
@@ -356,21 +335,15 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
                       << "while points stored in the tree have "
                       << "cardinality = " << root->leafPoint().size() << " "
                       << std::endl;
-
-//            std::cout << "==== done ======" << std::endl;
             return Types::Point< T >();
         }
 
         if ( distance < Utils::distance< T >( bestSoFar, pointOfInterest ) )
         {
-//            std::cout << "    leaf is new best " << root->leafPoint() << std::endl;
-//            std::cout << "==== done ======" << std::endl;
             return root->leafPoint();
         }
         else
         {
-//            std::cout << "    old best is better " << bestSoFar << std::endl;
-//            std::cout << "==== done ======" << std::endl;
             return bestSoFar;
         }
     }
@@ -384,7 +357,6 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
                   << "cardinality of at least = "
                   << root->hyperplane().hyperplaneIndex() << " "
                   << std::endl;
-        //std::cout << "==== done ======" << std::endl;
         return Types::Point< T >();
     }
 
@@ -392,18 +364,14 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
     std::shared_ptr< KDNode< T > > greedy;
     std::shared_ptr< KDNode< T > > other;
 
-//    std::cout << "    *** root it not leaf, " << root->hyperplane() << std::endl;
-
     if ( pointOfInterest[ root->hyperplane().hyperplaneIndex() ] <
                 root->hyperplane().value() )
     {
-  //      std::cout << "        going left first" << std::endl;
         greedy = root->left();
         other = root->right();
     }
     else
     {
-//        std::cout << "        going right first" << std::endl;
         greedy = root->right();
         other = root->left();
     }
@@ -413,35 +381,16 @@ KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
                                                               pointOfInterest,
                                                               bestSoFar );
 
-//    std::cout << "        greedy best " << greedyBest << std::endl;
-
-    const double greedyShortestDist = Utils::distance< T >( pointOfInterest,
-                                                            greedyBest );
-
-//    std::cout << "        dist to it " << greedyShortestDist << std::endl;
-
     // If the distance to the greedy best is bigger than distance to the
     // hyperplane at this node, search the other partition as well
     if ( Utils::distance< T >( pointOfInterest, root->hyperplane() ) <
-            greedyShortestDist )
+         Utils::distance< T >( pointOfInterest, greedyBest ) )
     {
-//        std::cout << "       ** may be able to find and alternative " << std::endl;
-        //TODO: remove
-        const Types::Point< T >& alternative =
-                nearestPointHelper( other,
-                                    pointOfInterest,
-                                    greedyBest );
-
-//        std::cout << "        alternative ? " << ( ( alternative != greedyBest ) ? "yes" : "no" )
-//                  << std::endl;
-
-//        std::cout << "        alternative " << alternative << std::endl;
-//        std::cout << "==== done ======" << std::endl;
-        return alternative;
+        return nearestPointHelper( other,
+                                   pointOfInterest,
+                                   greedyBest );
     }
 
-//    std::cout << "    returning " << greedyBest << std::endl;
-//    std::cout << "==== done ======" << std::endl;
     return greedyBest;
 }
 

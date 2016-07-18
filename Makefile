@@ -7,13 +7,13 @@ CC_FLAGS := --std=c++11 -Werror -Wall
 CPP_SRC := $(wildcard source/*.cpp)
 OBJ_SRC := $(addprefix source/,$(notdir $(CPP_SRC:.cpp=.o)))
 
-MAIN = kdtree
+MAIN = query_kdtree
 
 CPP_UNIT := $(wildcard tests/*.cpp)
 OBJ_UNIT := $(addprefix tests/,$(notdir $(CPP_UNIT:.cpp=.o)))
 
-CPP_MAIN := main.cpp
-OBJ_MAIN := main.o
+CPP_MAIN := query_kdtree.main.cpp
+OBJ_MAIN := query_kdtree.main.o
 
 GTEST_INC := -Itests -Isource
 CC_FLAGS += $(GTEST_INC)

@@ -4,3 +4,4 @@ CMake*
 *.tsk
 kdtree.unit.t
 CMakeLists.txt
+query_kdtree
