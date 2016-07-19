@@ -29,6 +29,27 @@ Types::Point< float > bruteForceClosest( const Types::Points< float >& points,
     return closestSoFar;
 }
 
+size_t bruteForceClosestIndex( const std::vector< Types::Point< float > >& points,
+                               const Types::Point< float >& pointOfInterest )
+{
+    Types::Point< float > closestSoFar = points[ 0 ];
+    double smallestDist = Utils::distance< float >( pointOfInterest, closestSoFar );
+    size_t closestIndex = 0;
+
+    for ( size_t i = 1; i < points.size(); ++i )
+    {
+        const double temp = Utils::distance< float >( pointOfInterest, points[ i ] );
+        if ( temp < smallestDist )
+        {
+            smallestDist = temp;
+            closestSoFar = points[ i ];
+            closestIndex = i;
+        }
+    }
+
+    return closestIndex;
+}
+
 int main()
 {
     const std::string dataFilename = "data/sample_data.csv";
@@ -55,12 +76,14 @@ int main()
             treePoint.push_back( value );
         }
 
-        treePoints.insert( treePoint );
+        treePoints.push_back( treePoint );
     }
     treeData.close();
 
     KDTree< float > tree( treePoints );
     std::cout << tree << std::endl;
+
+    Types::Points< float > queryPoints;
 
     const std::string queryFilename = "data/query_data.csv";
     std::ifstream queryData( queryFilename );
@@ -84,20 +107,51 @@ int main()
             queryPoint.push_back( value );
         }
 
-        Types::Point< float > brutePoint = bruteForceClosest( treePoints, queryPoint );
-        Types::Point< float > treePoint  = tree.nearestPoint( queryPoint );
+        queryPoints.push_back( queryPoint );
+    }
+
+    queryData.close();
+
+    for ( size_t i = 0; i < queryPoints.size(); ++i )
+    {
+        size_t bruteIndex = bruteForceClosestIndex( treePoints, queryPoints[ i ] );
+        size_t treeIndex = tree.nearestPointIndex( queryPoints[ i ] ) ;
+
+        if ( bruteIndex != treeIndex )
+        {
+            ++numMismatches;
+            std::cout << "Houston, we have a problem!" << std::endl;
+            std::cout << "    query = " << queryPoints[ i ] << std::endl;
+            std::cout << "    brute index = " << bruteIndex << std::endl;
+            std::cout << "    tree index = " << treeIndex << std::endl;
+        }
+    }
+
+    if ( numMismatches )
+    {
+        std::cout << "Total number of mismatches = " << numMismatches << std::cout;
+    }
+    else
+    {
+        std::cout << "They don`t pay you enough!" << std::endl;
+    }
+
+    numMismatches = 0;
+
+    for ( size_t i = 0; i < queryPoints.size(); ++i )
+    {
+        Types::Point< float > brutePoint = bruteForceClosest( treePoints, queryPoints[ i ] );
+        Types::Point< float > treePoint  = tree.nearestPoint( queryPoints[ i ] );
 
         if ( brutePoint != treePoint )
         {
             ++numMismatches;
             std::cout << "Houston, we have a problem!" << std::endl;
-            std::cout << "    query = " << queryPoint  << std::endl;
-            std::cout << "    brute = " << brutePoint  << std::endl;
-            std::cout << "    tree = "  << treePoint   << std::endl;
+            std::cout << "    query = " << queryPoints[ i ] << std::endl;
+            std::cout << "    brute = " << brutePoint << std::endl;
+            std::cout << "    tree = " << treePoint << std::endl;
         }
     }
-
-    queryData.close();
 
     if ( numMismatches )
     {
