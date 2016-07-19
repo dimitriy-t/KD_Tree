@@ -115,13 +115,16 @@ private:
         // A recursive helper function, finds the closes point in to the
         // point of interest
 
+    // The following allows creating of derived classes for test purposes
+    // while not exposing the vital components in productions classes
 protected:
     std::shared_ptr< KDNode< T > >     m_root;
         // Root node of this KD Tree
 
-private:
     Types::Points< T >                 m_points;
         // Points that the tree is built on
+
+private:
 
     std::string                        m_type;
         // Type of the KDTree. Used primarily for debugging/logs
@@ -290,7 +293,7 @@ KDTree< T >::build( const Types::Indexes& indexes )
         // Make a leaf node
         typename Types::Indexes::const_iterator it = indexes.cbegin();
         return std::shared_ptr< KDNode< T > >(
-                new KDNode< T >( m_points[ ( *it ) ], ( *it ) ) );
+                new KDNode< T >( ( *it ) ) );
     }
 
     // Recursive case

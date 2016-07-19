@@ -28,9 +28,7 @@ public:
             const std::shared_ptr< KDNode< T > >&  right );
         // Non-leaf Constructor
 
-    //TODO: fix me
-    KDNode( const Types::Point< T >& leafPoint,
-            const size_t             leafPointIndex = 123u );
+    KDNode( const size_t leafPointIndex );
         // Leaf Constructor
 
     KDNode( const KDNode& other );
@@ -136,11 +134,9 @@ KDNode< T >::KDNode( const KDHyperplane< T >&               hyperplane,
 }
 
 template< typename T >
-KDNode< T >::KDNode( const Types::Point< T >& leafPoint,
-                     const size_t             leafPointIndex )
+KDNode< T >::KDNode( const size_t leafPointIndex )
 : m_left(           nullptr )
 , m_right(          nullptr )
-, m_leafPoint(      leafPoint )
 , m_leafPointIndex( leafPointIndex )
 {
     // nothing to do here
@@ -227,8 +223,7 @@ template< typename T >
 bool
 KDNode< T >::isLeaf() const
 {
-    return ( m_leafPoint.size() != 0u );
-//    return ( m_leafPointIndex != Constants::KDTREE_ERROR_INDEX );
+    return ( m_leafPointIndex != Constants::KDTREE_ERROR_INDEX );
 }
 
 //============================================================================
@@ -242,7 +237,6 @@ KDNode< T >::copy( const KDNode< T >& other )
     m_hyperplane      = other.hyperplane();
     m_left            = other.left();
     m_right           = other.right();
-    m_leafPoint       = other.leafPoint();
     m_leafPointIndex  = other.leafPointIndex();
 }
 
@@ -257,7 +251,6 @@ KDNode< T >::equals( const KDNode< T >& other ) const
     return ( ( other.hyperplane()     == m_hyperplane     ) &&
              ( other.left()           == m_left           ) &&
              ( other.right()          == m_right          ) &&
-             ( other.leafPoint()      == m_leafPoint      ) &&
              ( other.leafPointIndex() == m_leafPointIndex ) );
 }
 
@@ -270,7 +263,6 @@ KDNode< T >::print( std::ostream& out ) const
         << "hyperplane = "       << m_hyperplane                 << ", "
         << "left ptr = '"        << std::hex << m_left           << "', "
         << "right ptr = '"       << std::hex << m_right          << "', "
-        << "leaf point = "       << m_leafPoint                  << ","
         << "leaf point index = " << std::dec << m_leafPointIndex << " ]";
 
     return out;

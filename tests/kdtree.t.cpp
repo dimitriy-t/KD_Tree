@@ -41,6 +41,11 @@ public:
     {
         return m_root;
     }
+
+    TestPoints points()
+    {
+        return m_points;
+    }
 };
 
 
@@ -167,12 +172,14 @@ TEST( KDTree, TreeOnOneNode )
     std::cout << *sanityTree.root() << std::endl;
 
     ASSERT_TRUE( sanityTree.root()->isLeaf() );
-    ASSERT_EQ  ( sanityTree.root()->leafPoint()     , p1 );
     ASSERT_EQ  ( sanityTree.root()->leafPointIndex(), 0u );
-    ASSERT_EQ  ( sanityTree.points()                , sanityPoints );
-    ASSERT_EQ  ( sanityTree.root()->hyperplane()    , emptyHyperplane );
-    ASSERT_EQ  ( sanityTree.root()->left()          , nullptr );
-    ASSERT_EQ  ( sanityTree.root()->right()         , nullptr );
+
+    //ASSERT_EQ  ( sanityTree.root()->leafPoint()     , p1 );
+
+    ASSERT_EQ  ( sanityTree.points()            , sanityPoints );
+    ASSERT_EQ  ( sanityTree.root()->hyperplane(), emptyHyperplane );
+    ASSERT_EQ  ( sanityTree.root()->left()      , nullptr );
+    ASSERT_EQ  ( sanityTree.root()->right()     , nullptr );
 }
 
 TEST( KDTree, TreeOnTwoNodes )
@@ -201,12 +208,13 @@ TEST( KDTree, TreeOnTwoNodes )
     ASSERT_TRUE(  sanityTree.root()->left()->isLeaf()  );
     ASSERT_TRUE(  sanityTree.root()->right()->isLeaf() );
 
-    ASSERT_EQ(    sanityTree.root()->left()->leafPoint()      , p1 );
     ASSERT_EQ(    sanityTree.root()->left()->leafPointIndex() , 0u );
-    ASSERT_EQ(    sanityTree.root()->right()->leafPoint()     , p2 );
     ASSERT_EQ(    sanityTree.root()->right()->leafPointIndex(), 1u );
 
-    ASSERT_EQ(    sanityTree.points()            , sanityPoints );
+    //ASSERT_EQ(    sanityTree.root()->left()->leafPoint()      , p1 );
+    //ASSERT_EQ(    sanityTree.root()->right()->leafPoint()     , p2 );
+
+    ASSERT_EQ(    sanityTree.points(), sanityPoints );
 }
 
 TEST( KDTree, TreeOnThreeNodes )
@@ -238,18 +246,20 @@ TEST( KDTree, TreeOnThreeNodes )
 
     // Left part must be a leaf on "-2"
     ASSERT_TRUE(  sanityTree.root()->left()->isLeaf() );
-    ASSERT_EQ(    sanityTree.root()->left()->leafPoint()     , p1 );
     ASSERT_EQ(    sanityTree.root()->left()->leafPointIndex(), 0u );
+
+    //ASSERT_EQ(    sanityTree.root()->left()->leafPoint(), p1 );
 
     // Right part must not be a leaf and contain "0", "1"
     ASSERT_FALSE( sanityTree.root()->right()->isLeaf() );
     ASSERT_EQ(    sanityTree.root()->right()->hyperplane(),
                   sanityHyperplane2 );
 
-    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPoint()      ,  p2 );
     ASSERT_EQ(    sanityTree.root()->right()->left()->leafPointIndex() , 1u );
-    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPoint()     , p3 );
     ASSERT_EQ(    sanityTree.root()->right()->right()->leafPointIndex(), 2u );
+
+//    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPoint() , p2 );
+//    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPoint(), p3 );
 }
 
 TEST( KDTree, TreeOnFourNodes )
@@ -296,15 +306,12 @@ TEST( KDTree, TreeOnFourNodes )
     ASSERT_EQ(    sanityTree.root()->left()->hyperplane(),
                       leftHyperplane );
 
-    ASSERT_EQ(    sanityTree.root()->left()->left()->leafPoint(),
-                      bottomLeft  );
-    ASSERT_EQ(    sanityTree.root()->left()->left()->leafPointIndex(),
-                      1u );
 
-    ASSERT_EQ(    sanityTree.root()->left()->right()->leafPoint(),
-                      upperLeft   );
-    ASSERT_EQ(    sanityTree.root()->left()->right()->leafPointIndex(),
-                      0u  );
+    ASSERT_EQ( sanityTree.root()->left()->left()->leafPointIndex(),  1u );
+    ASSERT_EQ( sanityTree.root()->left()->right()->leafPointIndex(), 0u );
+
+//    ASSERT_EQ( sanityTree.root()->left()->left()->leafPoint(),  bottomLeft );
+//    ASSERT_EQ( sanityTree.root()->left()->right()->leafPoint(), upperLeft );
 
     // Left node must partition on x due to higher [ -4; 4 ] spread
     ASSERT_FALSE( sanityTree.root()->right()->isLeaf() );
@@ -313,15 +320,11 @@ TEST( KDTree, TreeOnFourNodes )
     ASSERT_EQ(    sanityTree.root()->right()->hyperplane(),
                       rightHyperplane );
 
-    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPoint(),
-                      bottomRight );
-    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPointIndex(),
-                      3u );
+    ASSERT_EQ( sanityTree.root()->right()->left()->leafPointIndex(), 3u );
+    ASSERT_EQ( sanityTree.root()->right()->right()->leafPointIndex(),2u );
 
-    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPoint(),
-                      upperRight );
-    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPointIndex(),
-                      2u );
+//    ASSERT_EQ( sanityTree.root()->right()->left()->leafPoint(), bottomRight );
+//    ASSERT_EQ( sanityTree.root()->right()->right()->leafPoint(), upperRight );
 }
 
 TEST( KDTree, SearchOnEmptyTree )
