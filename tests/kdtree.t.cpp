@@ -440,57 +440,57 @@ TEST( KDTree, SearchTreeOnThreeNodes )
     ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest8 ) );
 }
 
-//TEST( KDTree, StressTest )
-//{
-//    TestPoint upperLeft;
-//    upperLeft.push_back( -11 ); // x
-//    upperLeft.push_back(  5 ); // y
-//
-//    TestPoint bottomLeft;
-//    bottomLeft.push_back( -10 ); // x
-//    bottomLeft.push_back( -6 ); // y
-//
-//    TestPoint upperRight;
-//    upperRight.push_back( 11 ); // x
-//    upperRight.push_back( 6 ); // y
-//
-//    TestPoint bottomRight;
-//    bottomRight.push_back(  12 ); // x
-//    bottomRight.push_back( -7 ); // y
-//
-//    TestPoints sanityPoints;
-//    sanityPoints.push_back( upperLeft );
-//    sanityPoints.push_back( bottomLeft );
-//    sanityPoints.push_back( upperRight );
-//    sanityPoints.push_back( bottomRight );
-//
-//    TestKDTree sanityTree( sanityPoints );
-//    std::cout << sanityTree << std::endl;
-//
-//    std::vector< TestPoint > testPoints;
-//    for ( int x = -15; x < 16; ++x )
-//    {
-//        for ( int y = -10; y < 10; ++y )
-//        {
-//            TestPoint test;
-//            test.push_back( x );
-//            test.push_back( y );
-//            testPoints.push_back( test );
-//        }
-//    }
-//
-//    for ( typename std::vector< TestPoint >::const_iterator it
-//              = testPoints.cbegin();
-//          it < testPoints.cend(); ++it )
-//    {
-//        //std::cout << "Checking " << ( *it ) << std::endl;
-//
-//        TestPoint bruteForcePoint = bruteForceClosest( sanityPoints, ( *it ) );
-//        TestPoint treePoint       = sanityTree.nearestPoint( *it );
-//
-//        ASSERT_EQ( bruteForcePoint, treePoint );
-//    }
-//}
+TEST( KDTree, StressTest )
+{
+    TestPoint upperLeft;
+    upperLeft.push_back( -11 ); // x
+    upperLeft.push_back(  5 ); // y
+
+    TestPoint bottomLeft;
+    bottomLeft.push_back( -10 ); // x
+    bottomLeft.push_back( -6 ); // y
+
+    TestPoint upperRight;
+    upperRight.push_back( 11 ); // x
+    upperRight.push_back( 6 ); // y
+
+    TestPoint bottomRight;
+    bottomRight.push_back(  12 ); // x
+    bottomRight.push_back( -7 ); // y
+
+    TestPoints sanityPoints;
+    sanityPoints.push_back( upperLeft );
+    sanityPoints.push_back( bottomLeft );
+    sanityPoints.push_back( upperRight );
+    sanityPoints.push_back( bottomRight );
+
+    TestKDTree sanityTree( sanityPoints );
+    std::cout << sanityTree << std::endl;
+
+    std::vector< TestPoint > testPoints;
+    for ( int x = -15; x < 16; ++x )
+    {
+        for ( int y = -10; y < 10; ++y )
+        {
+            TestPoint test;
+            test.push_back( x );
+            test.push_back( y );
+            testPoints.push_back( test );
+        }
+    }
+
+    for ( typename std::vector< TestPoint >::const_iterator it
+              = testPoints.cbegin();
+          it < testPoints.cend(); ++it )
+    {
+        //std::cout << "Checking " << ( *it ) << std::endl;
+
+        TestPoint bruteForcePoint = bruteForceClosest( sanityPoints, ( *it ) );
+        TestPoint treePoint       = sanityTree.nearestPoint( *it );
+
+        ASSERT_EQ( bruteForcePoint, treePoint );
+    }
+}
 
 } // namespace
 

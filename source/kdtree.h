@@ -221,9 +221,6 @@ const Types::Point< T >
 KDTree< T >::nearestPoint( const Types::Point< T >& pointOfInterest ) const
 {
     const size_t index = nearestPointIndex( pointOfInterest );
-
-    std::cout << "returning " << index << std::endl;
-
     if ( Constants::KDTREE_ERROR_INDEX == index )
     {
         return Types::Point< T >();
@@ -332,62 +329,34 @@ KDTree< T >::nearestPointIndexHelper(
         const Types::Point< T >&       pointOfInterest,
         const size_t                   bestSoFarIndex ) const
 {
-    std::cout << "====== Entering ===== " << std::endl;
-    if ( root != nullptr)
-    {
-        std::cout << "    root " << *root << std::endl;
-    }
-    else
-    {
-        std::cout << "    root is NULL " << std::endl;
-    }
-    std::cout << "    point of interest " << pointOfInterest << std::endl;
-    std::cout << "    best so far       " << bestSoFarIndex  << std::endl;
-
     // Base case
     if ( nullptr == root )
     {
-        std::cout << "        returning 1 " << Constants::KDTREE_ERROR_INDEX << std::endl;
-        std::cout << "====== done ===== " << std::endl;
         return Constants::KDTREE_ERROR_INDEX;
     }
 
     if ( root->isLeaf() )
     {
-        std::cout << "        *** leaf *** " << std::endl;
         // Sanity
         if ( Constants::KDTREE_ERROR_INDEX == root->leafPointIndex() )
         {
             std::cerr << "Internal logic error, root " << root << " must not "
                       << "have Constants::KDTREE_ERROR_INDEX index"
                       << std::endl;
-
-            std::cout << "        returning 2 " << root->leafPointIndex() << std::endl;
-            std::cout << "====== done ===== " << std::endl;
             return root->leafPointIndex();
         }
 
         // Initial greedy search
         if ( Constants::KDTREE_ERROR_INDEX == bestSoFarIndex )
         {
-            std::cout << "        returning 3 " << root->leafPointIndex() << std::endl;
-            std::cout << "====== done ===== " << std::endl;
             return root->leafPointIndex();
         }
 
         const Types::Point< T >& leafPoint =
                 m_points[ root->leafPointIndex() ];
 
-        std::cout << "        leaf here " << leafPoint << std::endl;
-
         const double distance = Utils::distance< T >( leafPoint,
                                                       pointOfInterest );
-
-        const double bestSoFarDist = Utils::distance< T >( m_points[ bestSoFarIndex ],
-                                                           pointOfInterest );
-
-        std::cout << "        distance      " << distance << std::endl;
-        std::cout << "        bestSoFarDist " << bestSoFarDist << std::endl;
 
         if ( Constants::KDTREE_INVALID_DISTANCE == distance )
         {
@@ -396,26 +365,19 @@ KDTree< T >::nearestPointIndexHelper(
                       << "while points stored in the tree have "
                       << "cardinality = " << leafPoint << " "
                       << std::endl;
-            std::cout << "        returning 4" << Constants::KDTREE_ERROR_INDEX << std::endl;
             return Constants::KDTREE_ERROR_INDEX;
         }
 
         if ( distance < Utils::distance< T >( m_points[ bestSoFarIndex ],
                                               pointOfInterest ) )
         {
-            std::cout << "        returning 5 " << root->leafPointIndex() << std::endl;
-            std::cout << "====== done ===== " << std::endl;
             return root->leafPointIndex();
         }
         else
         {
-            std::cout << "        returning 6 " << bestSoFarIndex << std::endl;
-            std::cout << "====== done ===== " << std::endl;
             return bestSoFarIndex;
         }
     }
-
-    std::cout << "        *** non-leaf *** " << std::endl;
 
     // Sanity
     if ( pointOfInterest.size() <= root->hyperplane().hyperplaneIndex() )
@@ -426,9 +388,6 @@ KDTree< T >::nearestPointIndexHelper(
                   << "cardinality of at least = "
                   << root->hyperplane().hyperplaneIndex() << " "
                   << std::endl;
-
-        std::cout << "        returning 7 " << Constants::KDTREE_ERROR_INDEX << std::endl;
-        std::cout << "====== done ===== " << std::endl;
         return Constants::KDTREE_ERROR_INDEX;
     }
 
@@ -439,15 +398,11 @@ KDTree< T >::nearestPointIndexHelper(
     if ( pointOfInterest[ root->hyperplane().hyperplaneIndex() ] <
                 root->hyperplane().value() )
     {
-        std::cout << "            going left " << std::endl;
-
         greedy = root->left();
         other = root->right();
     }
     else
     {
-        std::cout << "            going right " << std::endl;
-
         greedy = root->right();
         other = root->left();
     }
@@ -456,35 +411,16 @@ KDTree< T >::nearestPointIndexHelper(
     const size_t greedyBestIndex = nearestPointIndexHelper( greedy,
                                                             pointOfInterest,
                                                             bestSoFarIndex );
-
-    std::cout << "            greedy best         " << greedyBestIndex << std::endl;
-    std::cout << "            dist to hyperplane  "
-              << Utils::distance< T >( pointOfInterest, root->hyperplane() )
-              << std::endl;
-    std::cout << "            dist to greedy best "
-              << Utils::distance< T >( pointOfInterest, m_points[ greedyBestIndex ] )
-              << std::endl;
-
-
     // If the distance to the greedy best is bigger than distance to the
     // hyperplane at this node, search the other partition as well
     if ( Utils::distance< T >( pointOfInterest, root->hyperplane() ) <
          Utils::distance< T >( pointOfInterest, m_points[ greedyBestIndex ] ) )
     {
-        const size_t alternative = nearestPointIndexHelper( other,
-                                                            pointOfInterest,
-                                                            greedyBestIndex );
-
-        std::cout << "        returning 8 " << alternative << std::endl;
-        std::cout << "====== done ===== " << std::endl;
-        return alternative;
-//        return nearestPointIndexHelper( other,
-//                                        pointOfInterest,
-//                                        greedyBestIndex );
+        return nearestPointIndexHelper( other,
+                                        pointOfInterest,
+                                        greedyBestIndex );
     }
 
-    std::cout << "        returning 9 " << greedyBestIndex << std::endl;
-    std::cout << "====== done ===== " << std::endl;
     return greedyBestIndex;
 }
 
