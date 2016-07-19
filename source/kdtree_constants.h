@@ -25,14 +25,19 @@ struct Constants {
         // Denotes a plain vanilla KDTree implementations
 
     static const double KDTREE_INVALID_DISTANCE;
-        // Denotes an error output resulting from an attemp to
+        // Denotes an error output resulting from an attempt to
         // calculate distance between points of different
         // cardinality
 
     static const double KDTREE_MAX_DISTANCE;
-        // Denotes an error output resulting from an attemp to
+        // Denotes an error output resulting from an attempt to
         // calculate distance between points of different
         // cardinality
+
+    static const double KDTREE_ERROR_INDEX;
+        // Denotes an error output resulting from an attempt to
+        // search for a point either on an empty tree on in case of
+        // cardinality mismatch
 };
 
 } // namespace datastructures

@@ -55,11 +55,11 @@ TEST( Utils, MedianValueInAxis )
     p5.push_back( 1 );
     p5.push_back( 30 );
 
-    sanityData.insert( p1 );
-    sanityData.insert( p2 );
-    sanityData.insert( p3 );
-    sanityData.insert( p4 );
-    sanityData.insert( p5 );
+    sanityData.push_back( p1 );
+    sanityData.push_back( p2 );
+    sanityData.push_back( p3 );
+    sanityData.push_back( p4 );
+    sanityData.push_back( p5 );
 
     ASSERT_EQ( Utils::medianValueInAxis< int >( sanityData, 0u ), 0 );
     ASSERT_EQ( Utils::medianValueInAxis< int >( sanityData, 1u ), 1 );
@@ -99,11 +99,11 @@ TEST( Utils, AxisMinMax )
     p5.push_back(  4 );
     p5.push_back( -5 );
 
-    sanityData.insert( p1 );
-    sanityData.insert( p2 );
-    sanityData.insert( p3 );
-    sanityData.insert( p4 );
-    sanityData.insert( p5 );
+    sanityData.push_back( p1 );
+    sanityData.push_back( p2 );
+    sanityData.push_back( p3 );
+    sanityData.push_back( p4 );
+    sanityData.push_back( p5 );
 
     const Types::AxisMinMax< int > sanityRes =
             Utils::minMaxPerAxis< int >( sanityData );
@@ -149,11 +149,11 @@ TEST( Utils, AxisOfHighestVariance )
     p5.push_back(  4 );
     p5.push_back( -5 );
 
-    sanityData.insert( p1 );
-    sanityData.insert( p2 );
-    sanityData.insert( p3 );
-    sanityData.insert( p4 );
-    sanityData.insert( p5 );
+    sanityData.push_back( p1 );
+    sanityData.push_back( p2 );
+    sanityData.push_back( p3 );
+    sanityData.push_back( p4 );
+    sanityData.push_back( p5 );
 
     ASSERT_EQ( Utils::axisOfHighestVariance< int >( sanityData ), 2u );
 }

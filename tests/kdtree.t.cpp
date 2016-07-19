@@ -65,7 +65,7 @@ TestPoint bruteForceClosest( const TestPoints& points,
     for (;it != points.cend(); ++it )
     {
         const double temp = Utils::distance< int >( pointOfInterest, ( *it ) );
-        if ( temp < smallestDist )
+        if ( temp <= smallestDist )
         {
             smallestDist = temp;
             closestSoFar = ( *it );
@@ -94,9 +94,9 @@ TEST( Helpers, TestBruteForceClosest )
     p3.push_back( 1 ); // y
 
     TestPoints points;
-    points.insert( p1 );
-    points.insert( p2 );
-    points.insert( p3 );
+    points.push_back( p1 );
+    points.push_back( p2 );
+    points.push_back( p3 );
 
     TestPoint pOfInterest;
     pOfInterest.push_back( 0 ); // x
@@ -157,7 +157,7 @@ TEST( KDTree, TreeOnOneNode )
     p1.push_back( 3 );
 
     TestPoints sanityPoints;
-    sanityPoints.insert( p1 );
+    sanityPoints.push_back( p1 );
 
     TestHyperplane emptyHyperplane;
 
@@ -185,8 +185,8 @@ TEST( KDTree, TreeOnTwoNodes )
     p2.push_back( 1 );
 
     TestPoints sanityPoints;
-    sanityPoints.insert( p1 );
-    sanityPoints.insert( p2 );
+    sanityPoints.push_back( p1 );
+    sanityPoints.push_back( p2 );
 
     TestKDTree sanityTree( sanityPoints );
 
@@ -221,9 +221,9 @@ TEST( KDTree, TreeOnThreeNodes )
     p3.push_back( 1 );
 
     TestPoints sanityPoints;
-    sanityPoints.insert( p1 );
-    sanityPoints.insert( p2 );
-    sanityPoints.insert( p3 );
+    sanityPoints.push_back( p1 );
+    sanityPoints.push_back( p2 );
+    sanityPoints.push_back( p3 );
 
     TestKDTree sanityTree( sanityPoints );
     std::cout << sanityTree << std::endl;
@@ -269,10 +269,10 @@ TEST( KDTree, TreeOnFourNodes )
     bottomRight.push_back( -4 ); // y
 
     TestPoints sanityPoints;
-    sanityPoints.insert( upperLeft );
-    sanityPoints.insert( bottomLeft );
-    sanityPoints.insert( upperRight );
-    sanityPoints.insert( bottomRight );
+    sanityPoints.push_back( upperLeft );
+    sanityPoints.push_back( bottomLeft );
+    sanityPoints.push_back( upperRight );
+    sanityPoints.push_back( bottomRight );
 
     TestKDTree sanityTree( sanityPoints );
     std::cout << sanityTree << std::endl;
@@ -324,9 +324,9 @@ TEST( KDTree, FarilyRaindomSanity )
     p3.push_back( 8 );
 
     TestPoints sanityData;
-    sanityData.insert( p1 );
-    sanityData.insert( p2 );
-    sanityData.insert( p3 );
+    sanityData.push_back( p1 );
+    sanityData.push_back( p2 );
+    sanityData.push_back( p3 );
 
     TestKDTree sanityTree( sanityData  );
     std::cout << sanityTree << std::endl;
@@ -350,7 +350,7 @@ TEST( KDTree, SearchTreeOnOneNode )
     p1.push_back( 0 );
 
     TestPoints sanityData;
-    sanityData.insert( p1 );
+    sanityData.push_back( p1 );
 
     TestKDTree sanityTree( sanityData  );
     std::cout << sanityTree << std::endl;
@@ -370,8 +370,8 @@ TEST( KDTree, SearchTreeOnTwoNodes )
     p2.push_back( 3 );
 
     TestPoints sanityData;
-    sanityData.insert( p1 );
-    sanityData.insert( p2 );
+    sanityData.push_back( p1 );
+    sanityData.push_back( p2 );
 
     TestKDTree sanityTree( sanityData  );
     std::cout << sanityTree << std::endl;
@@ -397,9 +397,9 @@ TEST( KDTree, SearchTreeOnThreeNodes )
     p3.push_back( 0 ); // y
 
     TestPoints sanityPoints;
-    sanityPoints.insert( p1 );
-    sanityPoints.insert( p2 );
-    sanityPoints.insert( p3 );
+    sanityPoints.push_back( p1 );
+    sanityPoints.push_back( p2 );
+    sanityPoints.push_back( p3 );
 
     TestKDTree sanityTree( sanityPoints );
     std::cout << sanityTree << std::endl;
@@ -453,26 +453,26 @@ TEST( KDTree, SearchTreeOnThreeNodes )
 TEST( KDTree, StressTest )
 {
     TestPoint upperLeft;
-    upperLeft.push_back( -10 ); // x
+    upperLeft.push_back( -11 ); // x
     upperLeft.push_back(  5 ); // y
 
     TestPoint bottomLeft;
     bottomLeft.push_back( -10 ); // x
-    bottomLeft.push_back( -5 ); // y
+    bottomLeft.push_back( -6 ); // y
 
     TestPoint upperRight;
     upperRight.push_back( 11 ); // x
     upperRight.push_back( 6 ); // y
 
     TestPoint bottomRight;
-    bottomRight.push_back(  11 ); // x
-    bottomRight.push_back( -6 ); // y
+    bottomRight.push_back(  12 ); // x
+    bottomRight.push_back( -7 ); // y
 
     TestPoints sanityPoints;
-    sanityPoints.insert( upperLeft );
-    sanityPoints.insert( bottomLeft );
-    sanityPoints.insert( upperRight );
-    sanityPoints.insert( bottomRight );
+    sanityPoints.push_back( upperLeft );
+    sanityPoints.push_back( bottomLeft );
+    sanityPoints.push_back( upperRight );
+    sanityPoints.push_back( bottomRight );
 
     TestKDTree sanityTree( sanityPoints );
     std::cout << sanityTree << std::endl;
@@ -493,8 +493,12 @@ TEST( KDTree, StressTest )
               = testPoints.cbegin();
           it < testPoints.cend(); ++it )
     {
-        ASSERT_EQ( bruteForceClosest( sanityPoints, ( *it ) ),
-                   sanityTree.nearestPoint( *it ) );
+        //std::cout << "Checking " << ( *it ) << std::endl;
+
+        TestPoint bruteForcePoint = bruteForceClosest( sanityPoints, ( *it ) );
+        TestPoint treePoint       = sanityTree.nearestPoint( *it );
+
+        ASSERT_EQ( bruteForcePoint, treePoint );
     }
 }
 

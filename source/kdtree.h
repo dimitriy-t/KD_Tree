@@ -68,6 +68,12 @@ public:
         // empty point is returned
         // Calls nearestPointHelper()
 
+    size_t nearestPointIndex( const Types::Point< T >& pointOfInterest ) const;
+        // Returns index closes point in a tree to the point of interest.
+        // In case the tree is empty or there is a cardinality mismatch -
+        // KDTREE_ERROR_INDEX is returned
+        // Calls nearestPointHelper()
+
     const Types::Points< T > points() const;
         // Returns the set of points represented by this KDTree. Used
         // primarily for testing.
@@ -117,6 +123,9 @@ protected:
     std::shared_ptr< KDNode< T > >     m_root;
         // Root node of this KD Tree
 
+    Types::Points< T >                 m_points;
+        // Points that the tree is built on
+
 private:
     std::string                        m_type;
         // Type of the KDTree. Used primarily for debugging/logs
@@ -142,6 +151,7 @@ template< typename T >
 KDTree< T >::KDTree( const Types::Points< T >& points )
 : m_type( Constants::KDTREE_SIMPLE_VARIETY )
 {
+    m_points = points;
     m_root = build( points );
 }
 
@@ -213,12 +223,22 @@ KDTree< T >::nearestPoint( const Types::Point< T >& pointOfInterest ) const
 }
 
 template< typename T >
+size_t
+KDTree< T >::nearestPointIndex(
+        const Types::Point< T >& pointOfInterest ) const
+{
+    std::cout << "Implement me!" << std::endl;
+    return Constants::KDTREE_ERROR_INDEX;
+}
+
+template< typename T >
 const Types::Points< T >
 KDTree< T >::points() const
 {
-    Types::Points< T > points;
-    reassemblePoints( m_root, points );
-    return points;
+//    Types::Points< T > points;
+//    reassemblePoints( m_root, points );
+//    return points;
+    return m_points;
 }
 
 template< typename T >
@@ -270,11 +290,11 @@ KDTree< T >::build( const Types::Points< T > points )
     {
         if ( ( *it )[ hyperplane.hyperplaneIndex() ] < hyperplane.value() )
         {
-            leftPoints.insert( *it );
+            leftPoints.push_back( *it );
         }
         else
         {
-            rightPoints.insert( *it );
+            rightPoints.push_back( *it );
         }
     }
 
@@ -299,7 +319,7 @@ KDTree< T >::reassemblePoints( std::shared_ptr< KDNode< T > > node,
 
     if ( node->isLeaf() )
     {
-        points.insert( node->leafPoint() );
+        points.push_back( node->leafPoint() );
     }
 
     // Recursive Case
@@ -402,6 +422,7 @@ template< typename T >
 void
 KDTree< T >::copy( const KDTree< T >& other )
 {
+    m_points = other.points();
     m_root = build( other.points() );
 }
 
@@ -413,8 +434,8 @@ template< typename T >
 bool
 KDTree< T >::equals( const KDTree< T >& other ) const
 {
-    return ( ( other.type()    == m_type ) &&
-             ( other.points()  == points() ) );
+    return ( ( other.type()    == m_type   ) &&
+             ( other.points()  == m_points ) );
 }
 
 template< typename T >
@@ -423,7 +444,7 @@ KDTree< T >::print( std::ostream& out ) const
 {
     out << "KDTree:[ "
         << "implementation type = '" << m_type          << "', "
-        << "num points stored = "    << points().size() << " ] ";
+        << "num points stored = "    << m_points.size() << " ] ";
 
     return out;
 }
