@@ -28,7 +28,9 @@ public:
             const std::shared_ptr< KDNode< T > >&  right );
         // Non-leaf Constructor
 
-    KDNode( const Types::Point< T >& leafPoint );
+    //TODO: fix me
+    KDNode( const Types::Point< T >& leafPoint,
+            const size_t             leafPointIndex = 123u );
         // Leaf Constructor
 
     KDNode( const KDNode& other );
@@ -64,6 +66,11 @@ public:
         // represents. Note that non-leaf nodes will return
         // an empty Types::Point< T >
 
+    size_t leafPointIndex() const;
+        // Return index point stored in KDTree that this node
+        // represents. Note that non-leaf nodes will return
+        // KDTREE_ERROR_INDEX.
+
     bool isLeaf() const;
         // Returns true if a node is leaf and false otherwise
 
@@ -93,6 +100,9 @@ private:
     Types::Point< T >                  m_leafPoint;
         // Pointer to leaf point in the KDTree. Note that KDNode is used to
         // index the points in a KDTree, but does not own the memory;
+
+    size_t                             m_leafPointIndex;
+        // Index of leaf point in the KDTree
 };
 
 // INDEPENDENT OPERATORS
@@ -106,8 +116,9 @@ std::ostream& operator<<( std::ostream& lhs,
 
 template< typename T >
 KDNode< T >::KDNode()
-: m_left(         nullptr )
-, m_right(        nullptr )
+: m_left(           nullptr )
+, m_right(          nullptr )
+, m_leafPointIndex( Constants::KDTREE_ERROR_INDEX )
 {
     // nothing to do here
 }
@@ -116,18 +127,21 @@ template< typename T >
 KDNode< T >::KDNode( const KDHyperplane< T >&               hyperplane,
                      const std::shared_ptr< KDNode< T > >&  left,
                      const std::shared_ptr< KDNode< T > >&  right )
-: m_hyperplane(   hyperplane )
-, m_left(         left )
-, m_right(        right )
+: m_hyperplane(     hyperplane )
+, m_left(           left )
+, m_right(          right )
+, m_leafPointIndex( Constants::KDTREE_ERROR_INDEX )
 {
     // nothing to do here
 }
 
 template< typename T >
-KDNode< T >::KDNode( const Types::Point< T >& leafPoint )
-: m_left(         nullptr )
-, m_right(        nullptr )
-, m_leafPoint(    leafPoint )
+KDNode< T >::KDNode( const Types::Point< T >& leafPoint,
+                     const size_t             leafPointIndex )
+: m_left(           nullptr )
+, m_right(          nullptr )
+, m_leafPoint(      leafPoint )
+, m_leafPointIndex( leafPointIndex )
 {
     // nothing to do here
 }
@@ -200,11 +214,21 @@ KDNode< T >::leafPoint() const
 {
     return m_leafPoint;
 }
+
+template< typename T >
+size_t
+KDNode< T >::leafPointIndex() const
+{
+    return m_leafPointIndex;
+}
+
+
 template< typename T >
 bool
 KDNode< T >::isLeaf() const
 {
     return ( m_leafPoint.size() != 0u );
+//    return ( m_leafPointIndex != Constants::KDTREE_ERROR_INDEX );
 }
 
 //============================================================================
@@ -215,10 +239,11 @@ template< typename T >
 void
 KDNode< T >::copy( const KDNode< T >& other )
 {
-    m_hyperplane = other.hyperplane();
-    m_left       = other.left();
-    m_right      = other.right();
-    m_leafPoint  = other.leafPoint();
+    m_hyperplane      = other.hyperplane();
+    m_left            = other.left();
+    m_right           = other.right();
+    m_leafPoint       = other.leafPoint();
+    m_leafPointIndex  = other.leafPointIndex();
 }
 
 //============================================================================
@@ -229,10 +254,11 @@ template< typename T >
 bool
 KDNode< T >::equals( const KDNode< T >& other ) const
 {
-    return ( ( other.hyperplane() == m_hyperplane ) &&
-             ( other.left()       == m_left       ) &&
-             ( other.right()      == m_right      ) &&
-             ( other.leafPoint()  == m_leafPoint  ) );
+    return ( ( other.hyperplane()     == m_hyperplane     ) &&
+             ( other.left()           == m_left           ) &&
+             ( other.right()          == m_right          ) &&
+             ( other.leafPoint()      == m_leafPoint      ) &&
+             ( other.leafPointIndex() == m_leafPointIndex ) );
 }
 
 template< typename T >
@@ -240,11 +266,12 @@ std::ostream&
 KDNode< T >::print( std::ostream& out ) const
 {
     out << "KDNode:[ "
-        << "is leaf = '"   << ( isLeaf() ? "yes" : "no" ) << "', "
-        << "hyperplane = " << m_hyperplane                << ", "
-        << "left ptr = '"  << std::hex << m_left          << "', "
-        << "right ptr = '" << std::hex << m_right         << "', "
-        << "leaf point = " << m_leafPoint                 << " ]";
+        << "is leaf = '"         << ( isLeaf() ? "yes" : "no" )  << "', "
+        << "hyperplane = "       << m_hyperplane                 << ", "
+        << "left ptr = '"        << std::hex << m_left           << "', "
+        << "right ptr = '"       << std::hex << m_right          << "', "
+        << "leaf point = "       << m_leafPoint                  << ","
+        << "leaf point index = " << std::dec << m_leafPointIndex << " ]";
 
     return out;
 }

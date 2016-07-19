@@ -60,10 +60,13 @@ TEST( KDNode, TestUninitializedState )
     TestHyperplane  dummyHyperplane;
     TestPoint       dummyLeafPoint;
 
-    ASSERT_EQ( dummyNode.hyperplane(), dummyHyperplane );
-    ASSERT_EQ( dummyNode.left(),       nullptr );
-    ASSERT_EQ( dummyNode.left(),       nullptr );
-    ASSERT_EQ( dummyNode.leafPoint() , dummyLeafPoint );
+    std::cout << dummyNode << std::endl;
+
+    ASSERT_EQ( dummyNode.hyperplane(),     dummyHyperplane );
+    ASSERT_EQ( dummyNode.left(),           nullptr );
+    ASSERT_EQ( dummyNode.left(),           nullptr );
+    ASSERT_EQ( dummyNode.leafPoint() ,     dummyLeafPoint );
+    ASSERT_EQ( dummyNode.leafPointIndex(), Constants::KDTREE_ERROR_INDEX );
 }
 
 TEST( KDNode, SanityNonLeaf )
@@ -75,31 +78,34 @@ TEST( KDNode, SanityNonLeaf )
 
     TestNode dummyNode( hyperplane, left, right );
 
-    ASSERT_EQ( dummyNode.hyperplane(), hyperplane );
-    ASSERT_EQ( dummyNode.left()      , left );
-    ASSERT_EQ( dummyNode.right()     , right );
-    ASSERT_EQ( dummyNode.leafPoint() , emptyLeafPoint );
-    ASSERT_EQ( dummyNode.isLeaf()    , false );
+    ASSERT_EQ( dummyNode.hyperplane()    , hyperplane );
+    ASSERT_EQ( dummyNode.left()          , left );
+    ASSERT_EQ( dummyNode.right()         , right );
+    ASSERT_EQ( dummyNode.leafPoint()     , emptyLeafPoint );
+    ASSERT_EQ( dummyNode.isLeaf()        , false );
+    ASSERT_EQ( dummyNode.leafPointIndex(), Constants::KDTREE_ERROR_INDEX );
 
     std::cout << dummyNode << std::endl;
 
     TestNode dummyNode2 = dummyNode;
 
-    ASSERT_EQ( dummyNode2.hyperplane(), hyperplane );
-    ASSERT_EQ( dummyNode2.left()      , left );
-    ASSERT_EQ( dummyNode2.right()     , right );
-    ASSERT_EQ( dummyNode2.leafPoint() , emptyLeafPoint );
-    ASSERT_EQ( dummyNode2.isLeaf()    , false );
+    ASSERT_EQ( dummyNode2.hyperplane()    , hyperplane );
+    ASSERT_EQ( dummyNode2.left()          , left );
+    ASSERT_EQ( dummyNode2.right()         , right );
+    ASSERT_EQ( dummyNode2.leafPoint()     , emptyLeafPoint );
+    ASSERT_EQ( dummyNode2.isLeaf()        , false );
+    ASSERT_EQ( dummyNode2.leafPointIndex(), Constants::KDTREE_ERROR_INDEX );
 
     std::cout << dummyNode2 << std::endl;
 
     TestNode dummyNode3( dummyNode );
 
-    ASSERT_EQ( dummyNode3.hyperplane(), hyperplane );
-    ASSERT_EQ( dummyNode3.left()      , left );
-    ASSERT_EQ( dummyNode3.right()     , right );
-    ASSERT_EQ( dummyNode3.leafPoint() , emptyLeafPoint );
-    ASSERT_EQ( dummyNode3.isLeaf()    , false );
+    ASSERT_EQ( dummyNode3.hyperplane()    , hyperplane );
+    ASSERT_EQ( dummyNode3.left()          , left );
+    ASSERT_EQ( dummyNode3.right()         , right );
+    ASSERT_EQ( dummyNode3.leafPoint()     , emptyLeafPoint );
+    ASSERT_EQ( dummyNode3.isLeaf()        , false );
+    ASSERT_EQ( dummyNode3.leafPointIndex(), Constants::KDTREE_ERROR_INDEX );
 
     std::cout << dummyNode2 << std::endl;
 
@@ -115,33 +121,39 @@ TEST( KDNode, SanityLeaf )
     leafPoint.push_back( 2 );
     leafPoint.push_back( 3 );
 
-    TestNode dummyLeafNode( leafPoint );
+    const size_t   leafPointIndex = 1u;
+
+    TestNode dummyLeafNode( leafPoint, leafPointIndex );
 
     TestHyperplane emptyHyperplane;
 
-    ASSERT_EQ( dummyLeafNode.hyperplane(), emptyHyperplane );
-    ASSERT_EQ( dummyLeafNode.left()      , nullptr );
-    ASSERT_EQ( dummyLeafNode.right()     , nullptr );
-    ASSERT_EQ( dummyLeafNode.leafPoint() , leafPoint );
-    ASSERT_EQ( dummyLeafNode.isLeaf()    , true );
+
+    ASSERT_EQ( dummyLeafNode.hyperplane()    , emptyHyperplane );
+    ASSERT_EQ( dummyLeafNode.left()          , nullptr );
+    ASSERT_EQ( dummyLeafNode.right()         , nullptr );
+    ASSERT_EQ( dummyLeafNode.isLeaf()        , true );
+    ASSERT_EQ( dummyLeafNode.leafPoint()     , leafPoint );
+    ASSERT_EQ( dummyLeafNode.leafPointIndex(), leafPointIndex );
 
     std::cout << dummyLeafNode << std::endl;
 
     TestNode dummyLeafNode2 = dummyLeafNode;
-    ASSERT_EQ( dummyLeafNode2.hyperplane(), emptyHyperplane );
-    ASSERT_EQ( dummyLeafNode2.left()      , nullptr );
-    ASSERT_EQ( dummyLeafNode2.right()     , nullptr );
-    ASSERT_EQ( dummyLeafNode2.leafPoint() , leafPoint );
-    ASSERT_EQ( dummyLeafNode2.isLeaf()    , true );
+    ASSERT_EQ( dummyLeafNode2.hyperplane()    , emptyHyperplane );
+    ASSERT_EQ( dummyLeafNode2.left()          , nullptr );
+    ASSERT_EQ( dummyLeafNode2.right()         , nullptr );
+    ASSERT_EQ( dummyLeafNode2.isLeaf()        , true );
+    ASSERT_EQ( dummyLeafNode2.leafPoint()     , leafPoint );
+    ASSERT_EQ( dummyLeafNode2.leafPointIndex(), leafPointIndex );
 
     std::cout << dummyLeafNode2 << std::endl;
 
     TestNode dummyLeafNode3( dummyLeafNode );
-    ASSERT_EQ( dummyLeafNode3.hyperplane(), emptyHyperplane );
-    ASSERT_EQ( dummyLeafNode3.left()      , nullptr );
-    ASSERT_EQ( dummyLeafNode3.right()     , nullptr );
-    ASSERT_EQ( dummyLeafNode3.leafPoint() , leafPoint );
-    ASSERT_EQ( dummyLeafNode3.isLeaf()    , true );
+    ASSERT_EQ( dummyLeafNode3.hyperplane()    , emptyHyperplane );
+    ASSERT_EQ( dummyLeafNode3.left()          , nullptr );
+    ASSERT_EQ( dummyLeafNode3.right()         , nullptr );
+    ASSERT_EQ( dummyLeafNode3.isLeaf()        , true );
+    ASSERT_EQ( dummyLeafNode3.leafPoint()     , leafPoint );
+    ASSERT_EQ( dummyLeafNode3.leafPointIndex(), leafPointIndex );
 
     std::cout << dummyLeafNode3 << std::endl;
 

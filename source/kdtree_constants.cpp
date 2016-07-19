@@ -25,7 +25,7 @@ const double Constants::KDTREE_INVALID_DISTANCE
 const double Constants::KDTREE_MAX_DISTANCE
     = std::numeric_limits< double >::max();
 
-const double Constants::KDTREE_ERROR_INDEX
+const size_t Constants::KDTREE_ERROR_INDEX
     = std::numeric_limits< size_t >::max() - 2;
 
 } // namespace datastructures
