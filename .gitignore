@@ -5,3 +5,4 @@ CMake*
 kdtree.unit.t
 CMakeLists.txt
 query_kdtree
+build_kdtree

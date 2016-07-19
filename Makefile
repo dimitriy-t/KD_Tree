@@ -7,13 +7,14 @@ CC_FLAGS := --std=c++11 -Werror -Wall
 CPP_SRC := $(wildcard source/*.cpp)
 OBJ_SRC := $(addprefix source/,$(notdir $(CPP_SRC:.cpp=.o)))
 
-MAIN = query_kdtree
+BUILD_MAIN = build_kdtree
+QUERY_MAIN = query_kdtree
 
 CPP_UNIT := $(wildcard tests/*.cpp)
 OBJ_UNIT := $(addprefix tests/,$(notdir $(CPP_UNIT:.cpp=.o)))
 
-CPP_MAIN := query_kdtree.main.cpp
-OBJ_MAIN := query_kdtree.main.o
+BUILD_OBJ_MAIN := build_kdtree.main.o
+QUERY_OBJ_MAIN := query_kdtree.main.o
 
 GTEST_INC := -Itests -Isource
 CC_FLAGS += $(GTEST_INC)
@@ -23,9 +24,12 @@ GTEST_LIB := -lgtest -lgtest_main -lpthread
 
 UNITTEST = kdtree.unit.t
 
-all: $(MAIN)
+all: $(BUILD_MAIN) $(QUERY_MAIN) 
 
-$(MAIN): $(OBJ_SRC) $(OBJ_MAIN)
+$(BUILD_MAIN): $(OBJ_SRC) $(BUILD_OBJ_MAIN)
+	$(CC) $(LD_FLAGS) -o $@ $^
+
+$(QUERY_MAIN): $(OBJ_SRC) $(QUERY_OBJ_MAIN)
 	$(CC) $(LD_FLAGS) -o $@ $^
 
 test: $(OBJ_SRC) $(OBJ_UNIT)
@@ -38,10 +42,10 @@ test: $(OBJ_SRC) $(OBJ_UNIT)
 	$(CC) $(CC_FLAGS) -c -o $@ $<
 
 cleanmain:
-	$(RM) $(OBJ_SRC) $(OBJ_MAIN) $(MAIN)
+	$(RM) $(OBJ_SRC) $(BUILD_OBJ_MAIN) $(QUERY_OBJ_MAIN) $(BUILD_MAIN) $(QUERY_MAIN)
 
 cleantest:
-	$(RM) $(OBJ_SRC) $(OBJ_UNIT) $(UNITTEST)
+	$(RM) $(BUILD_OBJ_MAIN) $(QUERY_OBJ_MAIN) $(OBJ_UNIT) $(UNITTEST)
 
 cleanall: cleanmain cleantest
 

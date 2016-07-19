@@ -64,7 +64,7 @@ int main( int argc, char *argv[] )
     const std::string queryFileName = argv[ 2 ];
 
     std::ifstream queryData( queryFileName );
-    
+
     if ( !queryData.is_open() )
     {
         std::cout << "query_kdtree is unable to open '"
