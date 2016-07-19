@@ -221,8 +221,27 @@ template< typename T >
 bool
 KDTree< T >::serialize( const std::string& filename ) const
 {
-    std::cout << "Implement me!" << std::endl;
-    return false;
+    std::cout << "serialize point size " << m_points[ 0 ].size() << std::endl;
+
+    std::fstream serializedData;
+    serializedData.open( filename, std::fstream::out | std::fstream::trunc );
+
+    for ( size_t i = 0; i < m_points.size(); ++i )
+    {
+        const Types::Point< T >& point = m_points[ i ];
+        serializedData << point[ 0 ];
+
+        for ( size_t j = 1; j < point.size(); ++j )
+        {
+            serializedData << ',' << point[ j ];
+        }
+
+        serializedData << '\n';
+    }
+
+    serializedData.close();
+
+    return true;
 }
 
 template< typename T >
@@ -258,6 +277,8 @@ KDTree< T >::deserialize( const std::string& filename )
         points.push_back( point );
     }
     treeData.close();
+
+    std::cout << "deserialize point size " << m_points[ 0 ].size() << std::endl;
 
     m_points = points;
 

@@ -4,27 +4,28 @@
 
 #include "kdtree.h"
 
+using namespace std;
 using namespace datastructures;
 
-const std::string defaultResultsFilename = "results.csv";
+const string defaultResultsFilename = "results.csv";
 
 static void printHelp()
 {
-    std::cout << "Usage: query_kdtree tree_file query_file answers_file                      " << std::endl;
-    std::cout << "                                                                           " << std::endl;
-    std::cout << "    Where :                                                                " << std::endl;
-    std::cout << "      tree_file          - path to file produced by successful             " << std::endl;
-    std::cout << "                           invocation of build_kdtree                      " << std::endl;
-    std::cout << "                                                                           " << std::endl;
-    std::cout << "      query_file         - path CSV file containing query points data      " << std::endl;
-    std::cout << "                           as prescribed by the assignment                 " << std::endl;
-    std::cout << "                                                                           " << std::endl;
-    std::cout << "      answers_file       - path CSV file containing answers to queries     " << std::endl;
-    std::cout << "                           specified by query_file against tree specified  " << std::endl;
-    std::cout << "                           by tree_file. Default value is '"
-              << defaultResultsFilename << "'" << std::endl;
-    std::cout << "                           Note that all contents of an existing file will " << std::endl;
-    std::cout << "                           be erased.                                      " << std::endl;
+    cout << "Usage: query_kdtree tree_file query_file answers_file                      " << endl;
+    cout << "                                                                           " << endl;
+    cout << "    Where :                                                                " << endl;
+    cout << "      tree_file          - path to file produced by successful             " << endl;
+    cout << "                           invocation of build_kdtree                      " << endl;
+    cout << "                                                                           " << endl;
+    cout << "      query_file         - path CSV file containing query points data      " << endl;
+    cout << "                           as prescribed by the assignment                 " << endl;
+    cout << "                                                                           " << endl;
+    cout << "      answers_file       - path CSV file containing answers to queries     " << endl;
+    cout << "                           specified by query_file against tree specified  " << endl;
+    cout << "                           by tree_file. Default value is '"
+              << defaultResultsFilename << "'" << endl;
+    cout << "                           Note that all contents of an existing file will " << endl;
+    cout << "                           be erased.                                      " << endl;
 }
 
 static bool validateInputs( int argc, char *argv[] )
@@ -49,7 +50,7 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    const std::string treeFileName = argv[ 1 ];
+    const string treeFileName = argv[ 1 ];
 
     KDTree< float > tree;
 
@@ -59,21 +60,21 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    std::cout << tree << std::endl;
+    cout << tree << endl;
 
-    const std::string queryFileName = argv[ 2 ];
+    const string queryFileName = argv[ 2 ];
 
-    std::ifstream queryData( queryFileName );
+    ifstream queryData( queryFileName );
 
     if ( !queryData.is_open() )
     {
-        std::cout << "query_kdtree is unable to open '"
+        cout << "query_kdtree is unable to open '"
                   << queryFileName << "' for reading"
-                  << std::endl;
+                  << endl;
         return 1;
     }
 
-    std::string resultsFilename;
+    string resultsFilename;
 
     if ( 3 == argc )
     {
@@ -84,11 +85,11 @@ int main( int argc, char *argv[] )
         resultsFilename = argv[ 3 ];
     }
 
-    std::fstream results;
-    results.open( resultsFilename, std::fstream::out | std::fstream::trunc );
+    fstream results;
+    results.open( resultsFilename, fstream::out | fstream::trunc );
 
     int numQueriesProcessed = 0;
-    std::string line;
+    string line;
     while ( getline ( queryData, line ) )
     {
         Types::Point< float > queryPoint;
@@ -96,7 +97,7 @@ int main( int argc, char *argv[] )
         size_t pos = 0;
         while ( line.length() != pos )
         {
-            float value = std::stof( line, &pos );
+            float value = stof( line, &pos );
             line = line.substr( pos + 1u );
 
             queryPoint.push_back( value );
@@ -108,14 +109,14 @@ int main( int argc, char *argv[] )
 
     results.close();
 
-    std::cout << "Done" << std::endl;
-    std::cout << "    total number of queries : "
+    cout << "Done" << endl;
+    cout << "    total number of queries : "
               << numQueriesProcessed
-              << std::endl;
-    std::cout << "    result written to       : '"
+              << endl;
+    cout << "    result written to       : '"
               << resultsFilename
               << "'"
-              << std::endl;
+              << endl;
 
     return 0;
 }
