@@ -32,9 +32,9 @@ public:
     }
 
     virtual const TestHyperplane chooseBestSplit(
-            const TestPoints& points ) const
+            const Types::Indexes& indexes ) const
     {
-        return KDTree< int >::chooseBestSplit( points );
+        return KDTree< int >::chooseBestSplit( indexes );
     }
 
     std::shared_ptr< KDNode< int > > root()
@@ -167,11 +167,12 @@ TEST( KDTree, TreeOnOneNode )
     std::cout << *sanityTree.root() << std::endl;
 
     ASSERT_TRUE( sanityTree.root()->isLeaf() );
-    ASSERT_EQ  ( sanityTree.root()->leafPoint() , p1 );
-    ASSERT_EQ  ( sanityTree.points()            , sanityPoints );
-    ASSERT_EQ  ( sanityTree.root()->hyperplane(), emptyHyperplane );
-    ASSERT_EQ  ( sanityTree.root()->left()      , nullptr );
-    ASSERT_EQ  ( sanityTree.root()->right()     , nullptr );
+    ASSERT_EQ  ( sanityTree.root()->leafPoint()     , p1 );
+    ASSERT_EQ  ( sanityTree.root()->leafPointIndex(), 0u );
+    ASSERT_EQ  ( sanityTree.points()                , sanityPoints );
+    ASSERT_EQ  ( sanityTree.root()->hyperplane()    , emptyHyperplane );
+    ASSERT_EQ  ( sanityTree.root()->left()          , nullptr );
+    ASSERT_EQ  ( sanityTree.root()->right()         , nullptr );
 }
 
 TEST( KDTree, TreeOnTwoNodes )
@@ -200,8 +201,10 @@ TEST( KDTree, TreeOnTwoNodes )
     ASSERT_TRUE(  sanityTree.root()->left()->isLeaf()  );
     ASSERT_TRUE(  sanityTree.root()->right()->isLeaf() );
 
-    ASSERT_EQ(    sanityTree.root()->left()->leafPoint() , p1 );
-    ASSERT_EQ(    sanityTree.root()->right()->leafPoint(), p2 );
+    ASSERT_EQ(    sanityTree.root()->left()->leafPoint()      , p1 );
+    ASSERT_EQ(    sanityTree.root()->left()->leafPointIndex() , 0u );
+    ASSERT_EQ(    sanityTree.root()->right()->leafPoint()     , p2 );
+    ASSERT_EQ(    sanityTree.root()->right()->leafPointIndex(), 1u );
 
     ASSERT_EQ(    sanityTree.points()            , sanityPoints );
 }
@@ -235,15 +238,18 @@ TEST( KDTree, TreeOnThreeNodes )
 
     // Left part must be a leaf on "-2"
     ASSERT_TRUE(  sanityTree.root()->left()->isLeaf() );
-    ASSERT_EQ(    sanityTree.root()->left()->leafPoint(), p1 );
+    ASSERT_EQ(    sanityTree.root()->left()->leafPoint()     , p1 );
+    ASSERT_EQ(    sanityTree.root()->left()->leafPointIndex(), 0u );
 
     // Right part must not be a leaf and contain "0", "1"
     ASSERT_FALSE( sanityTree.root()->right()->isLeaf() );
     ASSERT_EQ(    sanityTree.root()->right()->hyperplane(),
                   sanityHyperplane2 );
 
-    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPoint(),  p2 );
-    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPoint(), p3 );
+    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPoint()      ,  p2 );
+    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPointIndex() , 1u );
+    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPoint()     , p3 );
+    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPointIndex(), 2u );
 }
 
 TEST( KDTree, TreeOnFourNodes )
@@ -289,10 +295,16 @@ TEST( KDTree, TreeOnFourNodes )
     ASSERT_TRUE(  sanityTree.root()->left()->right() != nullptr );
     ASSERT_EQ(    sanityTree.root()->left()->hyperplane(),
                       leftHyperplane );
+
     ASSERT_EQ(    sanityTree.root()->left()->left()->leafPoint(),
                       bottomLeft  );
+    ASSERT_EQ(    sanityTree.root()->left()->left()->leafPointIndex(),
+                      1u );
+
     ASSERT_EQ(    sanityTree.root()->left()->right()->leafPoint(),
                       upperLeft   );
+    ASSERT_EQ(    sanityTree.root()->left()->right()->leafPointIndex(),
+                      0u  );
 
     // Left node must partition on x due to higher [ -4; 4 ] spread
     ASSERT_FALSE( sanityTree.root()->right()->isLeaf() );
@@ -300,207 +312,185 @@ TEST( KDTree, TreeOnFourNodes )
     ASSERT_TRUE(  sanityTree.root()->right()->right() != nullptr );
     ASSERT_EQ(    sanityTree.root()->right()->hyperplane(),
                       rightHyperplane );
+
     ASSERT_EQ(    sanityTree.root()->right()->left()->leafPoint(),
-                      bottomRight  );
+                      bottomRight );
+    ASSERT_EQ(    sanityTree.root()->right()->left()->leafPointIndex(),
+                      3u );
+
     ASSERT_EQ(    sanityTree.root()->right()->right()->leafPoint(),
-                      upperRight   );
+                      upperRight );
+    ASSERT_EQ(    sanityTree.root()->right()->right()->leafPointIndex(),
+                      2u );
 }
 
-TEST( KDTree, FarilyRaindomSanity )
-{
-    TestPoint p1;
-    p1.push_back( 1 );
-    p1.push_back( 2 );
-    p1.push_back( 3 );
-
-    TestPoint p2;
-    p2.push_back( 4 );
-    p2.push_back( 5 );
-    p2.push_back( 6 );
-
-    TestPoint p3;
-    p3.push_back( 6 );
-    p3.push_back( 7 );
-    p3.push_back( 8 );
-
-    TestPoints sanityData;
-    sanityData.push_back( p1 );
-    sanityData.push_back( p2 );
-    sanityData.push_back( p3 );
-
-    TestKDTree sanityTree( sanityData  );
-    std::cout << sanityTree << std::endl;
-
-    ASSERT_EQ( sanityData, sanityTree.points() );
-}
-
-TEST( KDTree, SearchOnEmptyTree )
-{
-    TestKDTree sanityTree;
-
-    TestPoint pointOfInterest;
-    pointOfInterest.push_back( 0 );
-
-    ASSERT_EQ( TestPoint(), sanityTree.nearestPoint( pointOfInterest ) );
-}
-
-TEST( KDTree, SearchTreeOnOneNode )
-{
-    TestPoint p1;
-    p1.push_back( 0 );
-
-    TestPoints sanityData;
-    sanityData.push_back( p1 );
-
-    TestKDTree sanityTree( sanityData  );
-    std::cout << sanityTree << std::endl;
-
-    TestPoint pointOfInterest;
-    pointOfInterest.push_back( 1 );
-
-    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest ) );
-}
-
-TEST( KDTree, SearchTreeOnTwoNodes )
-{
-    TestPoint p1;
-    p1.push_back( -3 );
-
-    TestPoint p2;
-    p2.push_back( 3 );
-
-    TestPoints sanityData;
-    sanityData.push_back( p1 );
-    sanityData.push_back( p2 );
-
-    TestKDTree sanityTree( sanityData  );
-    std::cout << sanityTree << std::endl;
-
-    TestPoint pointOfInterest;
-    pointOfInterest.push_back( 1 );
-
-    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest ) );
-}
-
-TEST( KDTree, SearchTreeOnThreeNodes )
-{
-    TestPoint p1;
-    p1.push_back( -3 ); // x
-    p1.push_back(  0 ); // y
-
-    TestPoint p2;
-    p2.push_back( 0 ); // x
-    p2.push_back( 0 ); // y
-
-    TestPoint p3;
-    p3.push_back( 4 ); // x
-    p3.push_back( 0 ); // y
-
-    TestPoints sanityPoints;
-    sanityPoints.push_back( p1 );
-    sanityPoints.push_back( p2 );
-    sanityPoints.push_back( p3 );
-
-    TestKDTree sanityTree( sanityPoints );
-    std::cout << sanityTree << std::endl;
-
-    TestPoint pointOfInterest0;
-    pointOfInterest0.push_back( -100 ); // x
-    pointOfInterest0.push_back(  0 ); // y
-    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest0 ) );
-
-    TestPoint pointOfInterest1;
-    pointOfInterest1.push_back( -5 ); // x
-    pointOfInterest1.push_back(  0 ); // y
-    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest1 ) );
-
-    TestPoint pointOfInterest2;
-    pointOfInterest2.push_back( -2 ); // x
-    pointOfInterest2.push_back(  0 ); // y
-    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest2 ) );
-
-    TestPoint pointOfInterest3;
-    pointOfInterest3.push_back( -1 ); // x
-    pointOfInterest3.push_back(  0 ); // x
-    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest3 ) );
-
-    TestPoint pointOfInterest4;
-    pointOfInterest4.push_back( 0 ); // x
-    pointOfInterest4.push_back( 0 ); // x
-    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest4 ) );
-
-    TestPoint pointOfInterest5;
-    pointOfInterest5.push_back( 1 ); // x
-    pointOfInterest5.push_back( 0 ); // x
-    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest5 ) );
-
-    TestPoint pointOfInterest6;
-    pointOfInterest6.push_back( 3 ); // x
-    pointOfInterest6.push_back( 0 ); // x
-    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest6 ) );
-
-    TestPoint pointOfInterest7;
-    pointOfInterest7.push_back( 5 ); // x
-    pointOfInterest7.push_back( 0 ); // x
-    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest7 ) );
-
-    TestPoint pointOfInterest8;
-    pointOfInterest8.push_back( 100 ); // x
-    pointOfInterest8.push_back( 0 ); // x
-    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest8 ) );
-}
-
-TEST( KDTree, StressTest )
-{
-    TestPoint upperLeft;
-    upperLeft.push_back( -11 ); // x
-    upperLeft.push_back(  5 ); // y
-
-    TestPoint bottomLeft;
-    bottomLeft.push_back( -10 ); // x
-    bottomLeft.push_back( -6 ); // y
-
-    TestPoint upperRight;
-    upperRight.push_back( 11 ); // x
-    upperRight.push_back( 6 ); // y
-
-    TestPoint bottomRight;
-    bottomRight.push_back(  12 ); // x
-    bottomRight.push_back( -7 ); // y
-
-    TestPoints sanityPoints;
-    sanityPoints.push_back( upperLeft );
-    sanityPoints.push_back( bottomLeft );
-    sanityPoints.push_back( upperRight );
-    sanityPoints.push_back( bottomRight );
-
-    TestKDTree sanityTree( sanityPoints );
-    std::cout << sanityTree << std::endl;
-
-    std::vector< TestPoint > testPoints;
-    for ( int x = -15; x < 16; ++x )
-    {
-        for ( int y = -10; y < 10; ++y )
-        {
-            TestPoint test;
-            test.push_back( x );
-            test.push_back( y );
-            testPoints.push_back( test );
-        }
-    }
-
-    for ( typename std::vector< TestPoint >::const_iterator it
-              = testPoints.cbegin();
-          it < testPoints.cend(); ++it )
-    {
-        //std::cout << "Checking " << ( *it ) << std::endl;
-
-        TestPoint bruteForcePoint = bruteForceClosest( sanityPoints, ( *it ) );
-        TestPoint treePoint       = sanityTree.nearestPoint( *it );
-
-        ASSERT_EQ( bruteForcePoint, treePoint );
-    }
-}
+//TEST( KDTree, SearchOnEmptyTree )
+//{
+//    TestKDTree sanityTree;
+//
+//    TestPoint pointOfInterest;
+//    pointOfInterest.push_back( 0 );
+//
+//    ASSERT_EQ( TestPoint(), sanityTree.nearestPoint( pointOfInterest ) );
+//}
+//
+//TEST( KDTree, SearchTreeOnOneNode )
+//{
+//    TestPoint p1;
+//    p1.push_back( 0 );
+//
+//    TestPoints sanityData;
+//    sanityData.push_back( p1 );
+//
+//    TestKDTree sanityTree( sanityData  );
+//    std::cout << sanityTree << std::endl;
+//
+//    TestPoint pointOfInterest;
+//    pointOfInterest.push_back( 1 );
+//
+//    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest ) );
+//}
+//
+//TEST( KDTree, SearchTreeOnTwoNodes )
+//{
+//    TestPoint p1;
+//    p1.push_back( -3 );
+//
+//    TestPoint p2;
+//    p2.push_back( 3 );
+//
+//    TestPoints sanityData;
+//    sanityData.push_back( p1 );
+//    sanityData.push_back( p2 );
+//
+//    TestKDTree sanityTree( sanityData  );
+//    std::cout << sanityTree << std::endl;
+//
+//    TestPoint pointOfInterest;
+//    pointOfInterest.push_back( 1 );
+//
+//    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest ) );
+//}
+//
+//TEST( KDTree, SearchTreeOnThreeNodes )
+//{
+//    TestPoint p1;
+//    p1.push_back( -3 ); // x
+//    p1.push_back(  0 ); // y
+//
+//    TestPoint p2;
+//    p2.push_back( 0 ); // x
+//    p2.push_back( 0 ); // y
+//
+//    TestPoint p3;
+//    p3.push_back( 4 ); // x
+//    p3.push_back( 0 ); // y
+//
+//    TestPoints sanityPoints;
+//    sanityPoints.push_back( p1 );
+//    sanityPoints.push_back( p2 );
+//    sanityPoints.push_back( p3 );
+//
+//    TestKDTree sanityTree( sanityPoints );
+//    std::cout << sanityTree << std::endl;
+//
+//    TestPoint pointOfInterest0;
+//    pointOfInterest0.push_back( -100 ); // x
+//    pointOfInterest0.push_back(  0 ); // y
+//    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest0 ) );
+//
+//    TestPoint pointOfInterest1;
+//    pointOfInterest1.push_back( -5 ); // x
+//    pointOfInterest1.push_back(  0 ); // y
+//    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest1 ) );
+//
+//    TestPoint pointOfInterest2;
+//    pointOfInterest2.push_back( -2 ); // x
+//    pointOfInterest2.push_back(  0 ); // y
+//    ASSERT_EQ( p1, sanityTree.nearestPoint( pointOfInterest2 ) );
+//
+//    TestPoint pointOfInterest3;
+//    pointOfInterest3.push_back( -1 ); // x
+//    pointOfInterest3.push_back(  0 ); // x
+//    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest3 ) );
+//
+//    TestPoint pointOfInterest4;
+//    pointOfInterest4.push_back( 0 ); // x
+//    pointOfInterest4.push_back( 0 ); // x
+//    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest4 ) );
+//
+//    TestPoint pointOfInterest5;
+//    pointOfInterest5.push_back( 1 ); // x
+//    pointOfInterest5.push_back( 0 ); // x
+//    ASSERT_EQ( p2, sanityTree.nearestPoint( pointOfInterest5 ) );
+//
+//    TestPoint pointOfInterest6;
+//    pointOfInterest6.push_back( 3 ); // x
+//    pointOfInterest6.push_back( 0 ); // x
+//    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest6 ) );
+//
+//    TestPoint pointOfInterest7;
+//    pointOfInterest7.push_back( 5 ); // x
+//    pointOfInterest7.push_back( 0 ); // x
+//    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest7 ) );
+//
+//    TestPoint pointOfInterest8;
+//    pointOfInterest8.push_back( 100 ); // x
+//    pointOfInterest8.push_back( 0 ); // x
+//    ASSERT_EQ( p3, sanityTree.nearestPoint( pointOfInterest8 ) );
+//}
+//
+//TEST( KDTree, StressTest )
+//{
+//    TestPoint upperLeft;
+//    upperLeft.push_back( -11 ); // x
+//    upperLeft.push_back(  5 ); // y
+//
+//    TestPoint bottomLeft;
+//    bottomLeft.push_back( -10 ); // x
+//    bottomLeft.push_back( -6 ); // y
+//
+//    TestPoint upperRight;
+//    upperRight.push_back( 11 ); // x
+//    upperRight.push_back( 6 ); // y
+//
+//    TestPoint bottomRight;
+//    bottomRight.push_back(  12 ); // x
+//    bottomRight.push_back( -7 ); // y
+//
+//    TestPoints sanityPoints;
+//    sanityPoints.push_back( upperLeft );
+//    sanityPoints.push_back( bottomLeft );
+//    sanityPoints.push_back( upperRight );
+//    sanityPoints.push_back( bottomRight );
+//
+//    TestKDTree sanityTree( sanityPoints );
+//    std::cout << sanityTree << std::endl;
+//
+//    std::vector< TestPoint > testPoints;
+//    for ( int x = -15; x < 16; ++x )
+//    {
+//        for ( int y = -10; y < 10; ++y )
+//        {
+//            TestPoint test;
+//            test.push_back( x );
+//            test.push_back( y );
+//            testPoints.push_back( test );
+//        }
+//    }
+//
+//    for ( typename std::vector< TestPoint >::const_iterator it
+//              = testPoints.cbegin();
+//          it < testPoints.cend(); ++it )
+//    {
+//        //std::cout << "Checking " << ( *it ) << std::endl;
+//
+//        TestPoint bruteForcePoint = bruteForceClosest( sanityPoints, ( *it ) );
+//        TestPoint treePoint       = sanityTree.nearestPoint( *it );
+//
+//        ASSERT_EQ( bruteForcePoint, treePoint );
+//    }
+//}
 
 } // namespace
 

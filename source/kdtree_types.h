@@ -15,6 +15,8 @@ struct Types {
     template< typename T >
     using Points = std::vector< Point< T > >;
 
+    using Indexes = std::vector< size_t >;
+
     template< typename T >
     using AxisMinMax = std::vector< std::pair< T, T > >;
 
