@@ -6,94 +6,89 @@
 
 using namespace datastructures;
 
-Types::Point< float > bruteForceClosest( const Types::Points< float >& points,
-                                         const Types::Point< float >& pointOfInterest )
+const std::string defaultResultsFilename = "results.csv";
+
+static void printHelp()
 {
-    typename Types::Points< float >::const_iterator it = points.cbegin();
-
-    Types::Point< float > closestSoFar = ( *it );
-
-    double smallestDist = Utils::distance< float >( pointOfInterest, ( *it ) );
-    ++it;
-
-    for (;it != points.cend(); ++it )
-    {
-        const double temp = Utils::distance< float >( pointOfInterest, ( *it ) );
-        if ( temp < smallestDist )
-        {
-            smallestDist = temp;
-            closestSoFar = ( *it );
-        }
-    }
-
-    return closestSoFar;
+    std::cout << "Usage: query_kdtree tree_file query_file answers_file                      " << std::endl;
+    std::cout << "                                                                           " << std::endl;
+    std::cout << "    Where :                                                                " << std::endl;
+    std::cout << "      tree_file          - path to file produced by successful             " << std::endl;
+    std::cout << "                           invocation of build_kdtree                      " << std::endl;
+    std::cout << "                                                                           " << std::endl;
+    std::cout << "      query_file         - path CSV file containing query points data      " << std::endl;
+    std::cout << "                           as prescribed by the assignment                 " << std::endl;
+    std::cout << "                                                                           " << std::endl;
+    std::cout << "      answers_file       - path CSV file containing answers to queries     " << std::endl;
+    std::cout << "                           specified by query_file against tree specified  " << std::endl;
+    std::cout << "                           by tree_file. Default value is '"
+              << defaultResultsFilename << "'" << std::endl;
+    std::cout << "                           Note that all contents of an existing file will " << std::endl;
+    std::cout << "                           be erased.                                      " << std::endl;
 }
 
-size_t bruteForceClosestIndex( const std::vector< Types::Point< float > >& points,
-                               const Types::Point< float >& pointOfInterest )
+static bool validateInputs( int argc, char *argv[] )
 {
-    Types::Point< float > closestSoFar = points[ 0 ];
-    double smallestDist = Utils::distance< float >( pointOfInterest, closestSoFar );
-    size_t closestIndex = 0;
-
-    for ( size_t i = 1; i < points.size(); ++i )
+    if ( argc < 3 )
     {
-        const double temp = Utils::distance< float >( pointOfInterest, points[ i ] );
-        if ( temp < smallestDist )
-        {
-            smallestDist = temp;
-            closestSoFar = points[ i ];
-            closestIndex = i;
-        }
+        return false;
     }
 
-    return closestIndex;
+    return true;
 }
 
-int main()
+// locations :
+//     tree data  - "data/sample_data.csv"
+//     query data - "data/query_data.csv"
+
+int main( int argc, char *argv[] )
 {
-    const std::string dataFilename = "data/sample_data.csv";
-    std::ifstream treeData( dataFilename );
-
-    if ( treeData.is_open() )
+    if ( !validateInputs( argc, argv ) )
     {
-        std::cout << "Unable to open '" << dataFilename << "' for reading" << std::endl;
+        printHelp();
+        return 1;
     }
 
-    std::string line;
-    Types::Points< float > treePoints;
+    const std::string treeFileName = argv[ 1 ];
 
-    while ( getline ( treeData, line ) )
+    KDTree< float > tree;
+
+    if ( !tree.deserialize( treeFileName  ) )
     {
-        Types::Point< float > treePoint;
-
-        size_t pos = 0;
-        while ( line.length() != pos )
-        {
-            float value = std::stof( line, &pos );
-            line = line.substr( pos + 1u );
-
-            treePoint.push_back( value );
-        }
-
-        treePoints.push_back( treePoint );
+        printHelp();
+        return 1;
     }
-    treeData.close();
 
-    KDTree< float > tree( treePoints );
     std::cout << tree << std::endl;
 
-    Types::Points< float > queryPoints;
+    const std::string queryFileName = argv[ 2 ];
 
-    const std::string queryFilename = "data/query_data.csv";
-    std::ifstream queryData( queryFilename );
-
-    if ( treeData.is_open() )
+    std::ifstream queryData( queryFileName );
+    
+    if ( !queryData.is_open() )
     {
-        std::cout << "Unable to open '" << dataFilename << "' for reading" << std::endl;
+        std::cout << "query_kdtree is unable to open '"
+                  << queryFileName << "' for reading"
+                  << std::endl;
+        return 1;
     }
 
-    int numMismatches = 0;
+    std::string resultsFilename;
+
+    if ( 3 == argc )
+    {
+        resultsFilename = defaultResultsFilename;
+    }
+    else
+    {
+        resultsFilename = argv[ 3 ];
+    }
+
+    std::fstream results;
+    results.open( resultsFilename, std::fstream::out | std::fstream::trunc );
+
+    int numQueriesProcessed = 0;
+    std::string line;
     while ( getline ( queryData, line ) )
     {
         Types::Point< float > queryPoint;
@@ -107,60 +102,20 @@ int main()
             queryPoint.push_back( value );
         }
 
-        queryPoints.push_back( queryPoint );
+        results << tree.nearestPointIndex( queryPoint ) << '\n';
+        ++numQueriesProcessed;
     }
 
-    queryData.close();
+    results.close();
 
-    for ( size_t i = 0; i < queryPoints.size(); ++i )
-    {
-        size_t bruteIndex = bruteForceClosestIndex( treePoints, queryPoints[ i ] );
-        size_t treeIndex = tree.nearestPointIndex( queryPoints[ i ] ) ;
-
-        if ( bruteIndex != treeIndex )
-        {
-            ++numMismatches;
-            std::cout << "Houston, we have a problem!" << std::endl;
-            std::cout << "    query = " << queryPoints[ i ] << std::endl;
-            std::cout << "    brute index = " << bruteIndex << std::endl;
-            std::cout << "    tree index = " << treeIndex << std::endl;
-        }
-    }
-
-    if ( numMismatches )
-    {
-        std::cout << "Total number of mismatches = " << numMismatches << std::cout;
-    }
-    else
-    {
-        std::cout << "They don`t pay you enough!" << std::endl;
-    }
-
-    numMismatches = 0;
-
-    for ( size_t i = 0; i < queryPoints.size(); ++i )
-    {
-        Types::Point< float > brutePoint = bruteForceClosest( treePoints, queryPoints[ i ] );
-        Types::Point< float > treePoint  = tree.nearestPoint( queryPoints[ i ] );
-
-        if ( brutePoint != treePoint )
-        {
-            ++numMismatches;
-            std::cout << "Houston, we have a problem!" << std::endl;
-            std::cout << "    query = " << queryPoints[ i ] << std::endl;
-            std::cout << "    brute = " << brutePoint << std::endl;
-            std::cout << "    tree = " << treePoint << std::endl;
-        }
-    }
-
-    if ( numMismatches )
-    {
-        std::cout << "Total number of mismatches = " << numMismatches << std::cout;
-    }
-    else
-    {
-        std::cout << "They don`t pay you enough!" << std::endl;
-    }
+    std::cout << "Done" << std::endl;
+    std::cout << "    total number of queries : "
+              << numQueriesProcessed
+              << std::endl;
+    std::cout << "    result written to       : '"
+              << resultsFilename
+              << "'"
+              << std::endl;
 
     return 0;
 }

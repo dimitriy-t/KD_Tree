@@ -1,7 +1,8 @@
 #ifndef KDTREE_H
 #define KDTREE_H
 
-#include <memory>
+#include <iostream>
+#include <fstream>
 
 #include "kdtree_types.h"
 #include "kdtree_node.h"
@@ -12,6 +13,22 @@
 // @Purpose
 //
 // This is base class for a simple KDTree datastructure implementation
+//
+// Please note that it is capable of performing both nearest point lookup
+// from the original list as well as looking up the *index* of the nearest
+// point from the original list.
+//
+// Override chooseBestSplit() in order to implement a different heuristic
+// of splitting a set of n-dimensional points with a KDHyperplane object
+//
+// Overriding child classes must also provide a clear textual description
+// of the new type. This is dictated by the rather simplistic implementation
+// of operator<<(). Not providing an override for this value will lead to
+// many hours with a debugger!
+//
+// Note that baseline implementation is defined by
+// Constants::KDTREE_SIMPLE_VARIETY
+//
 
 namespace datastructures {
 
@@ -103,6 +120,10 @@ protected:
 
 
 private:
+    void buildWrapper();
+        // Simple helper function that is invoked once the tree is ready to
+        // be build. Calls build();
+
     std::shared_ptr< KDNode< T > > build( const Types::Indexes& indexes );
         // Function that builds the recursive bisection of the tree, as
         // described by the assignment specification. Calls chooseBestSplit()
@@ -151,14 +172,7 @@ KDTree< T >::KDTree( const Types::Points< T >& points )
 : m_points( points )
 , m_type( Constants::KDTREE_SIMPLE_VARIETY )
 {
-    Types::Indexes globalIndexes;
-    globalIndexes.reserve( m_points.size() );
-    for ( size_t i = 0; i < m_points.size(); ++i )
-    {
-        globalIndexes.push_back( i );
-    }
-
-    m_root = build( globalIndexes );
+    buildWrapper();
 }
 
 template< typename T >
@@ -215,8 +229,41 @@ template< typename T >
 bool
 KDTree< T >::deserialize( const std::string& filename )
 {
-    std::cout << "Implement me!" << std::endl;
-    return false;
+    std::ifstream treeData( filename );
+
+    if ( !treeData.is_open() )
+    {
+        std::cerr << "KDTree< T >::serialize() is unable to open "
+                  << "'" << filename << "' for reading"
+                  << std::endl;
+        return false;
+    }
+
+    Types::Points< float > points;
+    std::string line;
+
+    while ( getline ( treeData, line ) )
+    {
+        Types::Point< float > point;
+
+        size_t pos = 0;
+        while ( line.length() != pos )
+        {
+            float value = std::stof( line, &pos );
+            line = line.substr( pos + 1u );
+
+            point.push_back( value );
+        }
+
+        points.push_back( point );
+    }
+    treeData.close();
+
+    m_points = points;
+
+    buildWrapper();
+
+    return true;
 }
 
 template< typename T >
@@ -273,6 +320,20 @@ KDTree< T >::chooseBestSplit( const Types::Indexes& indexes ) const
     const T      value = Utils::medianValueInAxis( tempPoints, axis );
 
     return KDHyperplane< T >( axis, value );
+}
+
+template< typename T >
+void
+KDTree< T >::buildWrapper()
+{
+    Types::Indexes globalIndexes;
+    globalIndexes.reserve( m_points.size() );
+    for ( size_t i = 0; i < m_points.size(); ++i )
+    {
+        globalIndexes.push_back( i );
+    }
+
+    m_root = build( globalIndexes );
 }
 
 template< typename T >
@@ -436,15 +497,7 @@ void
 KDTree< T >::copy( const KDTree< T >& other )
 {
     m_points = other.points();
-
-    Types::Indexes globalIndexes;
-    globalIndexes.reserve( m_points.size() );
-    for ( size_t i = 0; i < m_points.size(); ++i )
-    {
-        globalIndexes.push_back( i );
-    }
-
-    m_root = build( globalIndexes );
+    buildWrapper();
 }
 
 //============================================================================
