@@ -61,18 +61,18 @@ public:
         // Loads the contents of the data via the contents of the file
         // Returns true on success and false otherwise.
 
-//    const Types::Point< T > nearestPoint(
-//            const Types::Point< T >& pointOfInterest ) const;
-//        // Returns const ref the closes point in a tree to the point of interest.
-//        // In case the tree is empty or there is a cardinality mismatch -
-//        // empty point is returned
-//        // Calls nearestPointHelper()
+    const Types::Point< T > nearestPoint(
+            const Types::Point< T >& pointOfInterest ) const;
+        // Returns const ref the closes point in a tree to the point of interest.
+        // In case the tree is empty or there is a cardinality mismatch -
+        // empty point is returned
+        // Calls nearestPointIndexHelper()
 
     size_t nearestPointIndex( const Types::Point< T >& pointOfInterest ) const;
         // Returns index closes point in a tree to the point of interest.
         // In case the tree is empty or there is a cardinality mismatch -
         // KDTREE_ERROR_INDEX is returned
-        // Calls nearestPointHelper()
+        // Calls nearestPointIndexHelper()
 
     const Types::Points< T > points() const;
         // Returns the set of points represented by this KDTree. Used
@@ -95,11 +95,6 @@ public:
         // format
 
 protected:
-//    virtual const KDHyperplane< T > chooseBestSplit(
-//            const Types::Points< T >& points ) const;
-//        // To be overloaded by children when extending the vanilla KDTree
-//        // Serves as a heuristics in determining optimal hyperplane to split the
-//        // provided points.
     virtual const KDHyperplane< T > chooseBestSplit(
             const Types::Indexes& indexes ) const;
         // To be overloaded by children when extending the vanilla KDTree
@@ -113,17 +108,12 @@ private:
         // described by the assignment specification. Calls chooseBestSplit()
         // at each level of recursion until leaf nodes is reached.
 
-//    void reassemblePoints( std::shared_ptr< KDNode< T > > node,
-//                           Types::Points< T >& points ) const;
-//        // A recursive helper function. Assemble all the stored points in
-//        // the tree into a container
-//
-//    const Types::Point< T > nearestPointHelper(
-//            std::shared_ptr< KDNode< T > > root,
-//            const Types::Point< T >& pointOfInterest,
-//            const Types::Point< T >& bestSoFar ) const;
-//        // A recursive helper function, finds the closes point in to the
-//        // point of interest
+    const size_t nearestPointIndexHelper(
+            std::shared_ptr< KDNode< T > > root,
+            const Types::Point< T >&       pointOfInterest,
+            const size_t                   bestSoFarIndex ) const;
+        // A recursive helper function, finds the closes point in to the
+        // point of interest
 
 protected:
     std::shared_ptr< KDNode< T > >     m_root;
@@ -226,31 +216,36 @@ KDTree< T >::deserialize( const std::string& filename )
     return false;
 }
 
-//template< typename T >
-//const Types::Point< T >
-//KDTree< T >::nearestPoint( const Types::Point< T >& pointOfInterest ) const
-//{
-//    return nearestPointHelper( m_root,
-//                               pointOfInterest,
-//                               Types::Point< T >() );
-//}
+template< typename T >
+const Types::Point< T >
+KDTree< T >::nearestPoint( const Types::Point< T >& pointOfInterest ) const
+{
+    const size_t index = nearestPointIndex( pointOfInterest );
 
-//template< typename T >
-//size_t
-//KDTree< T >::nearestPointIndex(
-//        const Types::Point< T >& pointOfInterest ) const
-//{
-//    std::cout << "Implement me!" << std::endl;
-//    return Constants::KDTREE_ERROR_INDEX;
-//}
+    std::cout << "returning " << index << std::endl;
+
+    if ( Constants::KDTREE_ERROR_INDEX == index )
+    {
+        return Types::Point< T >();
+    }
+
+    return m_points[ index ];
+}
+
+template< typename T >
+size_t
+KDTree< T >::nearestPointIndex(
+        const Types::Point< T >& pointOfInterest ) const
+{
+    return nearestPointIndexHelper( m_root,
+                                    pointOfInterest,
+                                    Constants::KDTREE_ERROR_INDEX );
+}
 
 template< typename T >
 const Types::Points< T >
 KDTree< T >::points() const
 {
-//    Types::Points< T > points;
-//    reassemblePoints( m_root, points );
-//    return points;
     return m_points;
 }
 
@@ -260,16 +255,6 @@ KDTree< T >::type() const
 {
     return m_type;
 }
-
-//template< typename T >
-//const KDHyperplane< T >
-//KDTree< T >::chooseBestSplit( const Types::Points< T >& points ) const
-//{
-//    const size_t axis  = Utils::axisOfHighestVariance( points );
-//    const T      value = Utils::medianValueInAxis( points, axis );
-//
-//    return KDHyperplane< T >( axis, value );
-//}
 
 template< typename T >
 const KDHyperplane< T >
@@ -340,113 +325,168 @@ KDTree< T >::build( const Types::Indexes& indexes )
                                                             rightSubtree ) );
 }
 
-//template< typename T >
-//void
-//KDTree< T >::reassemblePoints( std::shared_ptr< KDNode< T > > node,
-//                               Types::Points< T >& points ) const
-//{
-//    // Base Case
-//    if ( nullptr == node )
-//    {
-//        return;
-//    }
-//
-//    if ( node->isLeaf() )
-//    {
-//        points.push_back( node->leafPoint() );
-//    }
-//
-//    // Recursive Case
-//    reassemblePoints( node->left(), points );
-//    reassemblePoints( node->right(), points );
-//}
-//template< typename T >
-//const Types::Point< T >
-//KDTree< T >::nearestPointHelper( std::shared_ptr< KDNode< T > > root,
-//                                 const Types::Point< T >& pointOfInterest,
-//                                 const Types::Point< T >& bestSoFar ) const
-//{
-//    // Base case
-//    if ( nullptr == root )
-//    {
-//        return Types::Point< T >();
-//    }
-//
-//    if ( root->isLeaf() )
-//    {
-//        // Initial greedy search
-//        if ( bestSoFar.empty() )
-//        {
-//            return root->leafPoint();
-//        }
-//
-//        const double distance = Utils::distance< T >( root->leafPoint(),
-//                                                      pointOfInterest );
-//        if ( Constants::KDTREE_INVALID_DISTANCE == distance )
-//        {
-//            std::cerr << "Point cardinality mismatch. Point of interest has"
-//                      << "cardinality = " << pointOfInterest.size() << " "
-//                      << "while points stored in the tree have "
-//                      << "cardinality = " << root->leafPoint().size() << " "
-//                      << std::endl;
-//            return Types::Point< T >();
-//        }
-//
-//        if ( distance < Utils::distance< T >( bestSoFar, pointOfInterest ) )
-//        {
-//            return root->leafPoint();
-//        }
-//        else
-//        {
-//            return bestSoFar;
-//        }
-//    }
-//
-//    // Sanity
-//    if ( pointOfInterest.size() <= root->hyperplane().hyperplaneIndex() )
-//    {
-//        std::cerr << "Point cardinality mismatch. Point of interest has"
-//                  << "cardinality = " << pointOfInterest.size() << " "
-//                  << "while points stored in the tree have "
-//                  << "cardinality of at least = "
-//                  << root->hyperplane().hyperplaneIndex() << " "
-//                  << std::endl;
-//        return Types::Point< T >();
-//    }
-//
-//    // Recursive case
-//    std::shared_ptr< KDNode< T > > greedy;
-//    std::shared_ptr< KDNode< T > > other;
-//
-//    if ( pointOfInterest[ root->hyperplane().hyperplaneIndex() ] <
-//                root->hyperplane().value() )
-//    {
-//        greedy = root->left();
-//        other = root->right();
-//    }
-//    else
-//    {
-//        greedy = root->right();
-//        other = root->left();
-//    }
-//
-//    // First search greedily
-//    const Types::Point< T >& greedyBest = nearestPointHelper( greedy,
-//                                                              pointOfInterest,
-//                                                              bestSoFar );
-//
-//    // If the distance to the greedy best is bigger than distance to the
-//    // hyperplane at this node, search the other partition as well
-//    if ( Utils::distance< T >( pointOfInterest, root->hyperplane() ) <
-//         Utils::distance< T >( pointOfInterest, greedyBest ) )
-//    {
-//        return nearestPointHelper( other,
-//                                   pointOfInterest,
-//                                   greedyBest );
-//    }
-//
-//    return greedyBest;
-//}
+template< typename T >
+const size_t
+KDTree< T >::nearestPointIndexHelper(
+        std::shared_ptr< KDNode< T > > root,
+        const Types::Point< T >&       pointOfInterest,
+        const size_t                   bestSoFarIndex ) const
+{
+    std::cout << "====== Entering ===== " << std::endl;
+    if ( root != nullptr)
+    {
+        std::cout << "    root " << *root << std::endl;
+    }
+    else
+    {
+        std::cout << "    root is NULL " << std::endl;
+    }
+    std::cout << "    point of interest " << pointOfInterest << std::endl;
+    std::cout << "    best so far       " << bestSoFarIndex  << std::endl;
+
+    // Base case
+    if ( nullptr == root )
+    {
+        std::cout << "        returning 1 " << Constants::KDTREE_ERROR_INDEX << std::endl;
+        std::cout << "====== done ===== " << std::endl;
+        return Constants::KDTREE_ERROR_INDEX;
+    }
+
+    if ( root->isLeaf() )
+    {
+        std::cout << "        *** leaf *** " << std::endl;
+        // Sanity
+        if ( Constants::KDTREE_ERROR_INDEX == root->leafPointIndex() )
+        {
+            std::cerr << "Internal logic error, root " << root << " must not "
+                      << "have Constants::KDTREE_ERROR_INDEX index"
+                      << std::endl;
+
+            std::cout << "        returning 2 " << root->leafPointIndex() << std::endl;
+            std::cout << "====== done ===== " << std::endl;
+            return root->leafPointIndex();
+        }
+
+        // Initial greedy search
+        if ( Constants::KDTREE_ERROR_INDEX == bestSoFarIndex )
+        {
+            std::cout << "        returning 3 " << root->leafPointIndex() << std::endl;
+            std::cout << "====== done ===== " << std::endl;
+            return root->leafPointIndex();
+        }
+
+        const Types::Point< T >& leafPoint =
+                m_points[ root->leafPointIndex() ];
+
+        std::cout << "        leaf here " << leafPoint << std::endl;
+
+        const double distance = Utils::distance< T >( leafPoint,
+                                                      pointOfInterest );
+
+        const double bestSoFarDist = Utils::distance< T >( m_points[ bestSoFarIndex ],
+                                                           pointOfInterest );
+
+        std::cout << "        distance      " << distance << std::endl;
+        std::cout << "        bestSoFarDist " << bestSoFarDist << std::endl;
+
+        if ( Constants::KDTREE_INVALID_DISTANCE == distance )
+        {
+            std::cerr << "Point cardinality mismatch. Point of interest has"
+                      << "cardinality = " << pointOfInterest.size() << " "
+                      << "while points stored in the tree have "
+                      << "cardinality = " << leafPoint << " "
+                      << std::endl;
+            std::cout << "        returning 4" << Constants::KDTREE_ERROR_INDEX << std::endl;
+            return Constants::KDTREE_ERROR_INDEX;
+        }
+
+        if ( distance < Utils::distance< T >( m_points[ bestSoFarIndex ],
+                                              pointOfInterest ) )
+        {
+            std::cout << "        returning 5 " << root->leafPointIndex() << std::endl;
+            std::cout << "====== done ===== " << std::endl;
+            return root->leafPointIndex();
+        }
+        else
+        {
+            std::cout << "        returning 6 " << bestSoFarIndex << std::endl;
+            std::cout << "====== done ===== " << std::endl;
+            return bestSoFarIndex;
+        }
+    }
+
+    std::cout << "        *** non-leaf *** " << std::endl;
+
+    // Sanity
+    if ( pointOfInterest.size() <= root->hyperplane().hyperplaneIndex() )
+    {
+        std::cerr << "Point cardinality mismatch. Point of interest has"
+                  << "cardinality = " << pointOfInterest.size() << " "
+                  << "while points stored in the tree have "
+                  << "cardinality of at least = "
+                  << root->hyperplane().hyperplaneIndex() << " "
+                  << std::endl;
+
+        std::cout << "        returning 7 " << Constants::KDTREE_ERROR_INDEX << std::endl;
+        std::cout << "====== done ===== " << std::endl;
+        return Constants::KDTREE_ERROR_INDEX;
+    }
+
+    // Recursive case
+    std::shared_ptr< KDNode< T > > greedy;
+    std::shared_ptr< KDNode< T > > other;
+
+    if ( pointOfInterest[ root->hyperplane().hyperplaneIndex() ] <
+                root->hyperplane().value() )
+    {
+        std::cout << "            going left " << std::endl;
+
+        greedy = root->left();
+        other = root->right();
+    }
+    else
+    {
+        std::cout << "            going right " << std::endl;
+
+        greedy = root->right();
+        other = root->left();
+    }
+
+    // First search greedily
+    const size_t greedyBestIndex = nearestPointIndexHelper( greedy,
+                                                            pointOfInterest,
+                                                            bestSoFarIndex );
+
+    std::cout << "            greedy best         " << greedyBestIndex << std::endl;
+    std::cout << "            dist to hyperplane  "
+              << Utils::distance< T >( pointOfInterest, root->hyperplane() )
+              << std::endl;
+    std::cout << "            dist to greedy best "
+              << Utils::distance< T >( pointOfInterest, m_points[ greedyBestIndex ] )
+              << std::endl;
+
+
+    // If the distance to the greedy best is bigger than distance to the
+    // hyperplane at this node, search the other partition as well
+    if ( Utils::distance< T >( pointOfInterest, root->hyperplane() ) <
+         Utils::distance< T >( pointOfInterest, m_points[ greedyBestIndex ] ) )
+    {
+        const size_t alternative = nearestPointIndexHelper( other,
+                                                            pointOfInterest,
+                                                            greedyBestIndex );
+
+        std::cout << "        returning 8 " << alternative << std::endl;
+        std::cout << "====== done ===== " << std::endl;
+        return alternative;
+//        return nearestPointIndexHelper( other,
+//                                        pointOfInterest,
+//                                        greedyBestIndex );
+    }
+
+    std::cout << "        returning 9 " << greedyBestIndex << std::endl;
+    std::cout << "====== done ===== " << std::endl;
+    return greedyBestIndex;
+}
 
 //============================================================================
 //                  MANIPULATORS
