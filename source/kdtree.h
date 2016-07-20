@@ -141,8 +141,8 @@ private:
         // provided file stream. This function expects a valid file
         // stream to function properly.
 
-    void deserializeHelper( std::fstream&                   fileStream,
-                            std::shared_ptr< KDNode< T > >  root );
+    std::shared_ptr< KDNode< T > > deserializeHelper(
+                          std::fstream& fileStream );
         // A recursive helper function, writes the KD tree structure to
         // provided file stream. This function expects a valid file
         // stream to function properly.
@@ -267,6 +267,7 @@ KDTree< T >::serialize( const std::string& filename ) const
     }
     else
     {
+        serializedData << Constants::KDTREE_NON_EMPTY_MARKER << '\n';
         serializeHelper( serializedData, m_root );
     }
 
@@ -280,16 +281,6 @@ void
 KDTree< T >::serializeHelper( std::fstream&                  fileStream,
                                std::shared_ptr< KDNode< T > > root ) const
 {
-    // First store children
-    if ( nullptr != root->left() )
-    {
-        serializeHelper( fileStream, root->left() );
-    }
-    if ( nullptr != root->right() )
-    {
-        serializeHelper( fileStream, root->right() );
-    }
-
     // Handle hyperplane and leaf nodes differently
     if ( root->isLeaf() )
     {
@@ -299,10 +290,20 @@ KDTree< T >::serializeHelper( std::fstream&                  fileStream,
     }
 
     fileStream << Constants::KDTREE_HYPERPLANE_MARKER << '\n';
-    fileStream << root->hyperplane().serialize()      << '\n';
+    fileStream << root->hyperplane().serialize() << '\n';
 
+    // Then store children
+    if ( nullptr != root->left() )
+    {
+        serializeHelper( fileStream, root->left() );
+    }
+    if ( nullptr != root->right() )
+    {
+        serializeHelper( fileStream, root->right() );
+    }
 }
 
+//TODO: error checking!
 template< typename T >
 bool
 KDTree< T >::deserialize( const std::string& filename )
@@ -317,48 +318,83 @@ KDTree< T >::deserialize( const std::string& filename )
         return false;
     }
 
-    std::cout << "Implement me" << std::endl;
-    return false;
-//    Types::Points< T > points;
-//    std::string line;
-//
-//    while ( getline ( treeData, line ) )
-//    {
-//        Types::Point< T > point;
-//        size_t pos = 0;
-//
-//        while ( true )
-//        {
-//            point.push_back( static_cast< T >( stof( line, &pos ) ) );
-//
-//            if ( line[ pos ] == ',')
-//            {
-//                line = line.substr( pos + 1u );
-//            }
-//            else
-//            {
-//                break;
-//            }
-//        }
-//
-//        points.push_back( point );
-//    }
-//
-//    treeData.close();
-//
-//    m_points = points;
-//
-//    buildWrapper();
-//
-//    return true;
+    size_t pos;
+    std::string line;
+
+    // First deserialize number of lines
+    getline ( treeData, line );
+    int numOfPoints = std::stoi( line );
+
+    // Second all the points
+    Types::Points< T > points;
+    points.reserve( numOfPoints );
+    for ( int i = 0; i < numOfPoints; ++i )
+    {
+        Types::Point< T > point;
+
+        while ( true )
+        {
+            point.push_back( static_cast< T >( stof( line, &pos ) ) );
+
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        points.push_back( point );
+    }
+    m_points = points;
+
+    // Handle special-case of empty tree
+    getline ( treeData, line );
+    if ( Constants::KDTREE_NON_EMPTY_MARKER == line )
+    {
+        // Third tree structure from postorder
+        m_root = deserializeHelper( treeData );
+    }
+
+    treeData.close();
+
+    return true;
 }
 
+//TODO:: error checking!
 template< typename T >
-void
-KDTree< T >::deserializeHelper( std::fstream&                  fileStream,
-                                std::shared_ptr< KDNode< T > > root )
+std::shared_ptr< KDNode< T > >
+KDTree< T >::deserializeHelper( std::fstream& fileStream )
 {
-    std::cout << "Implement me" << std::endl;
+//    // First load children
+//    std::shared_ptr< KDNode< T > > left = serializeHelper( fileStream );
+//    std::shared_ptr< KDNode< T > > right = serializeHelper( fileStream );
+//
+//    // Inspect the next node
+//
+//    std::string line;
+//    getline ( treeData, line );
+//
+//    if ( Constants::KDTREE_LEAF_MARKER == line )
+//    {
+//        size_t index = static_cast< size_t >( stof( line ) );
+//
+//    }
+//
+//    int numOfPoints = std::stoi( line );
+//
+//    if ( root->isLeaf() )
+//    {
+//        fileStream << Constants::KDTREE_LEAF_MARKER << '\n';
+//        fileStream << root->leafPointIndex()        << '\n';
+//        return;
+//    }
+//
+//    fileStream << Constants::KDTREE_HYPERPLANE_MARKER << '\n';
+//    fileStream << root->hyperplane().serialize()      << '\n';
+    return nullptr;
 }
 
 template< typename T >

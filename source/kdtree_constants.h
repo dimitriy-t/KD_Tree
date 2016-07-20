@@ -50,6 +50,10 @@ struct Constants {
     static const std::string KDTREE_EMPTY_MARKER;
         // Denotes a special-case empty node line in a serialized
         // file stream
+
+    static const std::string KDTREE_NON_EMPTY_MARKER;
+        // Denotes a general case of non-empty tree structure serialized
+        // in a file stream
 };
 
 } // namespace datastructures

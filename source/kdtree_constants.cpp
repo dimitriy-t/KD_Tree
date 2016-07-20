@@ -35,7 +35,9 @@ const std::string Constants::KDTREE_LEAF_MARKER
     = "LEAF";
 
 const std::string Constants::KDTREE_EMPTY_MARKER
-    = "EMPTY";
+    = "EMPTY TREE";
 
+const std::string Constants::KDTREE_NON_EMPTY_MARKER
+    = "NON EMPTY TREE";
 
 } // namespace datastructures
