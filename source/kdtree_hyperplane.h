@@ -21,8 +21,8 @@ public:
     KDHyperplane();
     // Default constructor
 
-    KDHyperplane( const size_t                           hyperplaneIndex,
-                  const T                                value );
+    KDHyperplane( const size_t hyperplaneIndex,
+                  const T      value );
     // Constructor
 
     KDHyperplane( const KDHyperplane& other );

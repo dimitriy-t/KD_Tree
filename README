@@ -2,36 +2,25 @@ DEPENDENCIES AND BUILDING SOFTWARE
 
     This code base depends on only gtest/pthread for unit tests.
 
-    Main library code, residiging in the 'source' subfolder, has
-    no dependencies besides g++/c++11/make as specified by the 
-    assignment.
+    Main library code, residing in the 'source' subfolder, has
+    no dependencies besides g++/c++11/make.
 
-    In order to build build_kdtree executeble type :
-    make build_kdtree
+    In order to build build_kdtree executable type : make build_kdtree
 
-    In order to build query_kdtree executable type :
-    make query_kdtree
+    In order to build query_kdtree executable type : make query_kdtree
 
-    Executing :
-    make all
+    Executing "make all" will build both build_kdtree and query_kdtree
 
-    will build both build_kdtree and query_kdtree
+    Note that provided makefile supports : make cleanall
 
-    Note that provided makefile supports :
-    make cleanall
-
-    Executing :
-    make test
-
-    will build all of the unit tests and produce kdtree.unit.t
-    executable in root directory
+    Executing "make test" will build all of the unit tests and produce 
+    kdtree.unit.t executable in root directory
 
 RUNNING KDTREE DRIVERS
 
 BUILD_KDTREE
 
-    As per assignment specification, build_kdtree is to be executed
-    in the following manner
+    build_kdtree is to be executed in the following manner
 
     Usage: query_kdtree sample_file tree_file                                  
                                                                            
@@ -50,8 +39,7 @@ BUILD_KDTREE
 
 QUERY_KDTREE
 
-    As per assignment specification, query_kdtree is to be executed
-    in the following manner
+    query_kdtree is to be executed in the following manner
 
     Usage: query_kdtree tree_file query_file answers_file                      
                                                                            

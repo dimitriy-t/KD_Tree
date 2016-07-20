@@ -57,7 +57,6 @@ std::ostream& operator<<( std::ostream& lhs, const Types::Points< T >& rhs )
 
     if ( rhs.size() )
     {
-
         for ( typename Types::Points< T >::const_iterator it = rhs.cbegin();
               it != rhs.cend(); ++it )
         {

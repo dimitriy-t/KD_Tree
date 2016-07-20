@@ -23,9 +23,9 @@ public:
     KDNode();
     // Default constructor
 
-    KDNode( const KDHyperplane< T >&               hyperplane,
-            const std::shared_ptr< KDNode< T > >&  left,
-            const std::shared_ptr< KDNode< T > >&  right );
+    KDNode( const KDHyperplane< T >&              hyperplane,
+            const std::shared_ptr< KDNode< T > >& left,
+            const std::shared_ptr< KDNode< T > >& right );
         // Non-leaf Constructor
 
     KDNode( const size_t leafPointIndex );
