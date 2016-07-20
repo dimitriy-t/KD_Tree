@@ -48,7 +48,7 @@ public:
         // Constructor, throws in case points are of different length
         // Calls build() helper
 
-    ~KDTree();
+    virtual ~KDTree();
         // default dtor
 
     // OPERATORS
