@@ -68,12 +68,19 @@ int main()
         Types::Point< float > treePoint;
 
         size_t pos = 0;
-        while ( line.length() != pos )
-        {
-            float value = std::stof( line, &pos );
-            line = line.substr( pos + 1u );
 
-            treePoint.push_back( value );
+        while ( true )
+        {
+            treePoint.push_back( static_cast< float >( stof( line, &pos ) ) );
+
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
         }
 
         treePoints.push_back( treePoint );
@@ -101,8 +108,7 @@ int main()
         size_t pos = 0;
         while ( true )
         {
-            float value = stof( line, &pos );
-            point.push_back( value );
+            queryPoint.push_back( static_cast< double >( stof( line, &pos ) ) );
 
             if ( line[ pos ] == ',')
             {
