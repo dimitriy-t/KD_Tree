@@ -142,7 +142,7 @@ private:
         // stream to function properly.
 
     std::shared_ptr< KDNode< T > > deserializeHelper(
-                          std::fstream& fileStream );
+                          std::ifstream& fileStream );
         // A recursive helper function, writes the KD tree structure to
         // provided file stream. This function expects a valid file
         // stream to function properly.
@@ -243,10 +243,13 @@ KDTree< T >::serialize( const std::string& filename ) const
         return false;
     }
 
-    // First serialize number of lines
+    // First serialize tree type
+    serializedData << m_type << '\n';
+
+    // Second serialize number of lines
     serializedData << m_points.size() << '\n';
 
-    // Second all the points
+    // Third all the points
     for ( size_t i = 0; i < m_points.size(); ++i )
     {
         const Types::Point< T >& point = m_points[ i ];
@@ -260,7 +263,7 @@ KDTree< T >::serialize( const std::string& filename ) const
         serializedData << '\n';
     }
 
-    // Third serialize tree structure in postorder
+    // Fourth serialize tree structure in postorder
     serializeHelper( serializedData, m_root );
 
     serializedData.close();
@@ -302,7 +305,6 @@ KDTree< T >::serializeHelper( std::fstream&                  fileStream,
     }
 }
 
-//TODO: error checking!
 template< typename T >
 bool
 KDTree< T >::deserialize( const std::string& filename )
@@ -320,9 +322,44 @@ KDTree< T >::deserialize( const std::string& filename )
     size_t pos;
     std::string line;
 
+    // First check tree type
+    getline ( treeData, line );
+
+    if ( line != m_type )
+    {
+        std::cerr << "Tree type mismatch encountered in"
+                  << "KDTree::deserialize() "
+                  << "expected    : '" << m_type << "', "
+                  << "encountered : '" << line   << "'"
+                  << std::endl;
+                  return false;
+    }
+
     // First deserialize number of lines
     getline ( treeData, line );
-    int numOfPoints = std::stoi( line );
+    int numOfPoints;
+
+    try
+    {
+        numOfPoints = std::stoi( line );
+    }
+    catch ( std::exception e )
+    {
+        std::cerr << "Exception encountered during num tree points parsing in"
+                 << "KDTree::deserialize() "
+                 << "line : '" << line << "', "
+                 << "what : '" << e.what() << "'"
+                 << std::endl;
+                 return false;
+    }
+    catch ( ... )
+    {
+        std::cerr << "Unknown exception encountered during num tree points "
+                  << "parsing in KDTree::deserialize() "
+                  << "line : '" << line << "'"
+                  << std::endl;
+                  return false;
+    }
 
     // Second all the points
     Types::Points< T > points;
@@ -330,10 +367,31 @@ KDTree< T >::deserialize( const std::string& filename )
     for ( int i = 0; i < numOfPoints; ++i )
     {
         Types::Point< T > point;
+        getline ( treeData, line );
 
         while ( true )
         {
-            point.push_back( static_cast< T >( stof( line, &pos ) ) );
+            try
+            {
+                point.push_back( static_cast< T >( stof( line, &pos ) ) );
+            }
+            catch ( std::exception e )
+            {
+                std::cerr << "Exception encountered during tree point parsing in"
+                          << "KDTree::deserialize() "
+                          << "line : '" << line << "', "
+                          << "what : '" << e.what() << "'"
+                          << std::endl;
+                          return false;
+            }
+            catch ( ... )
+            {
+                std::cerr << "Unknown exception encountered during tree point "
+                          << "parsing in KDTree::deserialize() "
+                          << "line : '" << line << "'"
+                          << std::endl;
+                return false;
+            }
 
             if ( line[ pos ] == ',')
             {
@@ -349,6 +407,8 @@ KDTree< T >::deserialize( const std::string& filename )
     }
     m_points = points;
 
+    std::cout << "deserialization begins" << std::endl;
+
     // Third tree structure from postorder
     m_root = deserializeHelper( treeData );
 
@@ -357,10 +417,9 @@ KDTree< T >::deserialize( const std::string& filename )
     return true;
 }
 
-//TODO:: error checking!
 template< typename T >
 std::shared_ptr< KDNode< T > >
-KDTree< T >::deserializeHelper( std::fstream& fileStream )
+KDTree< T >::deserializeHelper( std::ifstream& fileStream )
 {
     // Inspect node type first
     std::string line;
@@ -376,7 +435,28 @@ KDTree< T >::deserializeHelper( std::fstream& fileStream )
     if ( Constants::KDTREE_LEAF_MARKER == line )
     {
         getline ( fileStream, line );
-        const int index = std::stoi( line );
+        int index;
+        try
+        {
+            index = std::stoi( line );
+        }
+        catch ( std::exception e )
+        {
+            std::cerr << "Exception encountered during leaf index parsing in"
+                      << "KDTree::deserializeHelper()"
+                      << "line : '" << line << "', "
+                      << "what : '" << e.what() << "'"
+                      << std::endl;
+            return nullptr;
+        }
+        catch ( ... )
+        {
+            std::cerr << "Unknown exception encountered during leaf index "
+                      << "parsing in KDTree::deserializeHelper()"
+                      << "line : '" << line << "'"
+                      << std::endl;
+            return nullptr;
+        }
 
         return std::shared_ptr< KDNode< T > >(
                 new KDNode< T >( static_cast< size_t >( index ) ) );
@@ -391,16 +471,18 @@ KDTree< T >::deserializeHelper( std::fstream& fileStream )
         hyperplane.deserialize( line );
 
         // Then load children
-        std::shared_ptr <KDNode< T >> left = serializeHelper( fileStream );
-        std::shared_ptr <KDNode< T >> right = serializeHelper( fileStream );
+        std::shared_ptr <KDNode< T > > left = deserializeHelper( fileStream );
+        std::shared_ptr <KDNode< T > > right = deserializeHelper( fileStream );
 
-        return std::shared_ptr< KDNode< T > >(
-                new KDNode< T >( static_cast< size_t >( hyperplane,
-                                                        left,
-                                                        right ) ) );
+        return std::shared_ptr< KDNode< T > >( new KDNode< T >( hyperplane,
+                                                                left,
+                                                                right ) );
     }
 
-    //TODO: error handling
+    std::cerr << "Unxpected line encountered during"
+              << "parsing in KDTree::deserializeHelper()"
+              << "line : '" << line << "'"
+              << std::endl;
 
     return nullptr;
 }

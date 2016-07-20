@@ -532,6 +532,11 @@ TEST( KDTREE, SerializeEmptyTreeTest )
     ASSERT_TRUE( treeData.is_open() );
 
     {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_SIMPLE_VARIETY, serialized );
+    }
+    {
         const std::string expected1 = "0";
         std::string serialized1;
         ASSERT_TRUE( getline( treeData, serialized1 ) );
@@ -547,6 +552,22 @@ TEST( KDTREE, SerializeEmptyTreeTest )
         std::string serialized;
         ASSERT_FALSE( getline( treeData, serialized ) );
     }
+}
+
+TEST( KDTREE, DeserializeEmptyTreeTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    TestKDTree deserialized;
+    ASSERT_TRUE( deserialized.deserialize( testFile ) );
+
+    ASSERT_EQ( sampleTree, deserialized );
 }
 
 TEST( KDTREE, SerializeTreeOnOneNodeTest )
@@ -567,6 +588,11 @@ TEST( KDTREE, SerializeTreeOnOneNodeTest )
     std::ifstream treeData( testFile );
     ASSERT_TRUE( treeData.is_open() );
 
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_SIMPLE_VARIETY, serialized );
+    }
     {
         const std::string expected = "1";
         std::string serialized;
@@ -600,6 +626,27 @@ TEST( KDTREE, SerializeTreeOnOneNodeTest )
     }
 }
 
+TEST( KDTREE, DeserializeTreeOnOneNodesTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( 1 );
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    TestKDTree deserialized;
+    ASSERT_TRUE( deserialized.deserialize( testFile ) );
+
+    ASSERT_EQ( sampleTree, deserialized );
+}
+
 TEST( KDTREE, SerializeTreeOnTwoNodesTest )
 {
     TestFileGuard guard( testFile );
@@ -623,6 +670,11 @@ TEST( KDTREE, SerializeTreeOnTwoNodesTest )
     std::ifstream treeData( testFile );
     ASSERT_TRUE( treeData.is_open() );
 
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_SIMPLE_VARIETY, serialized );
+    }
     {
         const std::string expected = "2";
         std::string serialized;
@@ -684,6 +736,48 @@ TEST( KDTREE, SerializeTreeOnTwoNodesTest )
     }
 }
 
+TEST( KDTREE, DeserializeTreeOnTwoNodesTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( 1 );
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 2 );
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    TestKDTree deserialized;
+    ASSERT_TRUE( deserialized.deserialize( testFile ) );
+    std::cout << deserialized << std::endl;
+
+    ASSERT_EQ( sampleTree.root()->isLeaf(),
+             deserialized.root()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->hyperplane(),
+             deserialized.root()->hyperplane() );
+
+    ASSERT_EQ( sampleTree.root()->left()->isLeaf(),
+             deserialized.root()->left()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->left()->leafPointIndex(),
+             deserialized.root()->left()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree.root()->right()->isLeaf(),
+             deserialized.root()->right()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->right()->leafPointIndex(),
+             deserialized.root()->right()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree, deserialized );
+}
+
 TEST( KDTREE, SerializeTreeOnThreeNodesTest )
 {
     TestFileGuard guard( testFile );
@@ -712,6 +806,11 @@ TEST( KDTREE, SerializeTreeOnThreeNodesTest )
     std::ifstream treeData( testFile );
     ASSERT_TRUE( treeData.is_open() );
 
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_SIMPLE_VARIETY, serialized );
+    }
     {
         const std::string expected = "3";
         std::string serialized;
@@ -805,6 +904,62 @@ TEST( KDTREE, SerializeTreeOnThreeNodesTest )
     }
 }
 
+TEST( KDTREE, DeserializeTreeOnThreeNodesTest )
+{
+    //TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( 1 );
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 2 );
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 3 );
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    TestKDTree deserialized;
+    ASSERT_TRUE( deserialized.deserialize( testFile ) );
+
+    ASSERT_EQ( sampleTree.root()->isLeaf(),
+             deserialized.root()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->hyperplane(),
+             deserialized.root()->hyperplane() );
+
+    ASSERT_EQ( sampleTree.root()->left()->isLeaf(),
+             deserialized.root()->left()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->left()->leafPointIndex(),
+             deserialized.root()->left()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree.root()->right()->isLeaf(),
+             deserialized.root()->right()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->right()->hyperplane(),
+             deserialized.root()->right()->hyperplane() );
+
+    ASSERT_EQ( sampleTree.root()->right()->left()->isLeaf(),
+             deserialized.root()->right()->left()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->right()->left()->leafPointIndex(),
+             deserialized.root()->right()->left()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree.root()->right()->left()->isLeaf(),
+             deserialized.root()->right()->left()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->right()->left()->leafPointIndex(),
+             deserialized.root()->right()->left()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree, deserialized );
+}
+
 TEST( KDTREE, SerializeTreeOnFourNodesTest )
 {
     TestFileGuard guard( testFile );
@@ -842,6 +997,11 @@ TEST( KDTREE, SerializeTreeOnFourNodesTest )
     std::ifstream treeData( testFile );
     ASSERT_TRUE( treeData.is_open() );
 
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_SIMPLE_VARIETY, serialized );
+    }
     {
         const std::string expected = "4";
         std::string serialized;
@@ -959,37 +1119,77 @@ TEST( KDTREE, SerializeTreeOnFourNodesTest )
     }
 }
 
-//TEST( KDTREE, SerializeDeserializeEquivalenceTest )
-//{
- //   TestFileGuard guard( testFile );
-//
-//    TestPoints treePoints;
-//    {
-//        TestPoint p;
-//        p.push_back( 1 );
-//        treePoints.push_back( p );
-//    }
-//    {
-//        TestPoint p;
-//        p.push_back( 2 );
-//        treePoints.push_back( p );
-//    }
-//    {
-//        TestPoint p;
-//        p.push_back( 3 );
-//        treePoints.push_back( p );
-//    }
-//
-//    TestKDTree sampleTree( treePoints );
-//    std::cout << sampleTree << std::endl;
-//
-//    ASSERT_TRUE( sampleTree.serialize( testFile ) );
-//    TestKDTree deserializedTree;
-//
-//    ASSERT_TRUE( deserializedTree.deserialize( testFile ) );
-//    std::cout << deserializedTree << std::endl;
-//
-//    ASSERT_EQ( sampleTree, deserializedTree );
-//}
+TEST( KDTREE, DeserializeTreeOnFourNodesTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( -6 ); // x
+        p.push_back(  2 ); // x
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( -6 ); // x
+        p.push_back( -2 ); // x
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 6 ); // x
+        p.push_back( 4 ); // x
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back(  6 ); // x
+        p.push_back( -4 ); // x
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    TestKDTree deserialized;
+    ASSERT_TRUE( deserialized.deserialize( testFile ) );
+
+    ASSERT_EQ( sampleTree.root()->isLeaf(),
+             deserialized.root()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->hyperplane(),
+             deserialized.root()->hyperplane() );
+
+    ASSERT_EQ( sampleTree.root()->left()->isLeaf(),
+             deserialized.root()->left()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->left()->hyperplane(),
+             deserialized.root()->left()->hyperplane() );
+
+    ASSERT_EQ( sampleTree.root()->left()->left()->isLeaf(),
+             deserialized.root()->left()->left()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->left()->left()->leafPointIndex(),
+             deserialized.root()->left()->left()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree.root()->left()->right()->isLeaf(),
+             deserialized.root()->left()->right()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->left()->right()->leafPointIndex(),
+             deserialized.root()->left()->right()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree.root()->right()->isLeaf(),
+             deserialized.root()->right()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->right()->hyperplane(),
+             deserialized.root()->right()->hyperplane() );
+
+    ASSERT_EQ( sampleTree.root()->right()->left()->isLeaf(),
+             deserialized.root()->right()->left()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->right()->left()->leafPointIndex(),
+             deserialized.root()->right()->left()->leafPointIndex() );
+
+    ASSERT_EQ( sampleTree.root()->right()->right()->isLeaf(),
+             deserialized.root()->right()->right()->isLeaf() );
+    ASSERT_EQ( sampleTree.root()->right()->right()->leafPointIndex(),
+             deserialized.root()->right()->right()->leafPointIndex() );
+}
 
 } // namespace
