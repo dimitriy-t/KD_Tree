@@ -15,10 +15,16 @@ DEPENDENCIES AND BUILDING SOFTWARE
     Executing :
     make all
 
-    will build build_kdtree/query_kdtree/kdtree.unit.t
+    will build both build_kdtree and query_kdtree
 
-    Note that my makefiles supports :
+    Note that provided makefile supports :
     make cleanall
+
+    Executing :
+    make test
+
+    will build all of the unit tests and produce kdtree.unit.t
+    executable in root directory
 
 RUNNING KDTREE DRIVERS
 

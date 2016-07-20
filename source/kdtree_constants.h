@@ -38,6 +38,14 @@ struct Constants {
         // Denotes an error output resulting from an attempt to
         // search for a point either on an empty tree on in case of
         // cardinality mismatch
+
+    static const std::string KDTREE_HYPERPLANE_MARKER;
+        // Denotes an upcoming hyperplane node line in a serialized
+        // file stream
+
+    static const std::string KDTREE_LEAF_MARKER;
+        // Denotes an upcoming leaf node line in a serialized
+        // file stream
 };
 
 } // namespace datastructures

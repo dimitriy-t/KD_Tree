@@ -90,7 +90,72 @@ TEST( KDHyperplane, Sanity )
     ASSERT_EQ( dummyHyperplane, dummyHyperplane2 );
     ASSERT_EQ( dummyHyperplane, dummyHyperplane3 );
     ASSERT_EQ( dummyHyperplane2, dummyHyperplane3 );
+}
 
+TEST( KDHyperplane, TestSerialized )
+{
+    const size_t hyperplaneIndex = 1u;
+    const int    hyperplaneValue = 2;
+
+    TestHyperplane dummyHyperplane( hyperplaneIndex,
+                                    hyperplaneValue );
+
+    const std::string serialized = "1 2";
+    ASSERT_EQ( serialized, dummyHyperplane.serialize() );
+}
+
+TEST( KDHyperplane, TestDeserializedFail1 )
+{
+    const std::string emptySerialized = "";
+
+    TestHyperplane dummyHyperplane;
+    ASSERT_FALSE( dummyHyperplane.deserialize( emptySerialized ) );
+}
+
+TEST( KDHyperplane, TestDeserializedFail2 )
+{
+    const std::string emptySerialized = "-1";
+
+    TestHyperplane dummyHyperplane;
+    ASSERT_FALSE( dummyHyperplane.deserialize( emptySerialized ) );
+}
+
+TEST( KDHyperplane, TestDeserializedFail3 )
+{
+    const std::string emptySerialized = "not an int";
+
+    TestHyperplane dummyHyperplane;
+    ASSERT_FALSE( dummyHyperplane.deserialize( emptySerialized ) );
+}
+
+TEST( KDHyperplane, TestDeserializedFail4 )
+{
+    const std::string emptySerialized = "1";
+
+    TestHyperplane dummyHyperplane;
+    ASSERT_FALSE( dummyHyperplane.deserialize( emptySerialized ) );
+}
+
+TEST( KDHyperplane, TestDeserializedFail5 )
+{
+    const std::string emptySerialized = "1 not a double";
+
+    TestHyperplane dummyHyperplane;
+    ASSERT_FALSE( dummyHyperplane.deserialize( emptySerialized ) );
+}
+
+TEST( KDHyperplane, TestDeserialized )
+{
+    const size_t hyperplaneIndex = 1u;
+    const int    hyperplaneValue = 2;
+
+    const std::string serialized = "1 2";
+
+    TestHyperplane dummyHyperplane;
+
+    ASSERT_TRUE( dummyHyperplane.deserialize( serialized ) );
+    ASSERT_EQ( dummyHyperplane.hyperplaneIndex(), hyperplaneIndex );
+    ASSERT_EQ( dummyHyperplane.value()          , hyperplaneValue );
 }
 
 } // namespace

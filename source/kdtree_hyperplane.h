@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include "kdtree_types.h"
 #include "kdtree_constants.h"
@@ -51,6 +52,14 @@ public:
         // defined by this node.
         // Note that value is set to static_cast< T >( 0 ) by the
         // default dtor
+
+    const std::string serialize() const;
+        // Returns the serialized hyperplane as a string
+
+    bool deserialize( const std::string& serialized );
+        // Loads the contents of the hyperplane from the serialized
+        // representation
+        // Returns true on success and false otherwise.
 
     // MANIPULATORS
     void copy( const KDHyperplane& other );
@@ -153,6 +162,101 @@ const T
 KDHyperplane< T >::value() const
 {
     return m_value;
+}
+
+template< typename T >
+const std::string
+KDHyperplane< T >::serialize() const
+{
+    std::ostringstream serialized;
+    serialized << m_hyperplaneIndex << " " << m_value;
+    return serialized.str();
+}
+
+template< typename T >
+bool
+KDHyperplane< T >::deserialize( const std::string& serialized )
+{
+    if ( serialized.empty() )
+    {
+        std::cerr << "Empty string passed to KDHyperplane::deserialize()"
+                  << std::endl;
+        return false;
+    }
+
+    size_t pos = 0;
+    int val1;
+
+    try
+    {
+        val1 = std::stoi( serialized , &pos );
+    }
+    catch ( std::exception e )
+    {
+        std::cerr << "Exception encountered during first val parsing in"
+                  << "KDHyperplane::deserialize()"
+                  << "serialized : '" << serialized << "', "
+                  << "what : '" << e.what() << "'"
+                  << std::endl;
+                  return false;
+    }
+    catch ( ... )
+    {
+        std::cerr << "Unknown exception encountered during first val parsing "
+                  << "in KDHyperplane::deserialize()"
+                  << "serialized : '" << serialized << "', "
+                  << std::endl;
+        return false;
+    }
+
+    if ( val1 < 0 )
+    {
+        std::cerr << "Negative hyperplane index passed to "
+                  << "KDHyperplane::deserialize(), positive index value"
+                  << "expected"
+                  << "serialized : '" << serialized << "'"
+                  << std::endl;
+        return false;
+    }
+
+    if ( serialized.length() == pos )
+    {
+        std::cerr << "Negative hyperplane index passed to "
+                  << "KDHyperplane::deserialize(), two values expected"
+                  << "serialized : '" << serialized << "'"
+                  << std::endl;
+        return false;
+    }
+
+    const std::string second = serialized.substr( pos );
+    double val2;
+
+    try
+    {
+        val2 = std::stof( second , &pos );
+    }
+    catch ( std::exception e )
+    {
+        std::cerr << "Exception encountered during second val parsing in"
+                  << "KDHyperplane::deserialize()"
+                  << "serialized : '" << serialized << "', "
+                  << "what : '" << e.what() << "'"
+                  << std::endl;
+                  return false;
+    }
+    catch ( ... )
+    {
+        std::cerr << "Unknown exception encountered during second val parsing "
+                  << "in KDHyperplane::deserialize()"
+                  << "serialized : '" << serialized << "', "
+                  << std::endl;
+                  return false;
+    }
+
+    m_hyperplaneIndex = static_cast< size_t >( val1 );
+    m_value           = static_cast< T >( val2 );
+
+    return true;
 }
 
 //============================================================================

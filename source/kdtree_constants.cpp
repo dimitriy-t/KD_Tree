@@ -28,4 +28,11 @@ const double Constants::KDTREE_MAX_DISTANCE
 const size_t Constants::KDTREE_ERROR_INDEX
     = std::numeric_limits< size_t >::max() - 2;
 
+const std::string Constants::KDTREE_HYPERPLANE_MARKER
+    = "HYPERPLANE";
+
+const std::string Constants::KDTREE_LEAF_MARKER
+    = "LEAF";
+
+
 } // namespace datastructures
