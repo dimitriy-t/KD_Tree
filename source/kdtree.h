@@ -221,8 +221,6 @@ template< typename T >
 bool
 KDTree< T >::serialize( const std::string& filename ) const
 {
-    std::cout << "serialize point size " << m_points[ 0 ].size() << std::endl;
-
     std::fstream serializedData;
     serializedData.open( filename, std::fstream::out | std::fstream::trunc );
 
@@ -258,27 +256,32 @@ KDTree< T >::deserialize( const std::string& filename )
         return false;
     }
 
-    Types::Points< float > points;
+    Types::Points< T > points;
     std::string line;
 
     while ( getline ( treeData, line ) )
     {
-        Types::Point< float > point;
-
+        Types::Point< T > point;
         size_t pos = 0;
-        while ( line.length() != pos )
-        {
-            float value = std::stof( line, &pos );
-            line = line.substr( pos + 1u );
 
-            point.push_back( value );
+        while ( true )
+        {
+            point.push_back( static_cast< T >( stof( line, &pos ) ) );
+
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
         }
 
         points.push_back( point );
     }
-    treeData.close();
 
-    std::cout << "deserialize point size " << m_points[ 0 ].size() << std::endl;
+    treeData.close();
 
     m_points = points;
 

@@ -23,7 +23,7 @@ static void printHelp()
     cout << "                           Note that all contents of an existing file will " << endl;
     cout << "                           be erased.                                      " << endl;
 }
-//
+
 static bool validateInputs( int argc, char *argv[] )
 {
     if ( argc < 2 )
@@ -56,20 +56,26 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    Types::Points< float > points;
+    Types::Points< double > points;
     string line;
 
     while ( getline ( treeData, line ) )
     {
-        Types::Point< float > point;
-
+        Types::Point< double > point;
         size_t pos = 0;
-        while ( line.length() != pos )
-        {
-            float value = stof( line, &pos );
-            line = line.substr( pos + 1u );
 
-            point.push_back( value );
+        while ( true )
+        {
+            point.push_back( static_cast< double >( stof( line, &pos ) ) );
+
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
         }
 
         points.push_back( point );
@@ -86,9 +92,7 @@ int main( int argc, char *argv[] )
         treeFileName = argv[ 2 ];
     }
 
-    std::cout << "build kd point size " << points[ 0 ].size() << std::endl;
-
-    KDTree< float > tree( points );
+    KDTree< double > tree( points );
     cout << tree << endl;
 
     if ( !tree.serialize( treeFileName )  )

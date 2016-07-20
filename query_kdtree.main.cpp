@@ -95,12 +95,19 @@ int main( int argc, char *argv[] )
         Types::Point< float > queryPoint;
 
         size_t pos = 0;
-        while ( line.length() != pos )
-        {
-            float value = stof( line, &pos );
-            line = line.substr( pos + 1u );
 
-            queryPoint.push_back( value );
+        while ( true )
+        {
+            queryPoint.push_back( static_cast< float >( stof( line, &pos ) ) );
+
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
         }
 
         results << tree.nearestPointIndex( queryPoint ) << '\n';

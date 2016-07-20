@@ -99,12 +99,19 @@ int main()
         Types::Point< float > queryPoint;
 
         size_t pos = 0;
-        while ( line.length() != pos )
+        while ( true )
         {
-            float value = std::stof( line, &pos );
-            line = line.substr( pos + 1u );
+            float value = stof( line, &pos );
+            point.push_back( value );
 
-            queryPoint.push_back( value );
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
         }
 
         queryPoints.push_back( queryPoint );
