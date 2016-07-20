@@ -103,6 +103,27 @@ TestPoint bruteForceClosest( const TestPoints& points,
     return closestSoFar;
 }
 
+size_t bruteForceClosestIndex( const std::vector< Types::Point< float > >& points,
+                               const Types::Point< float >& pointOfInterest )
+{
+    Types::Point< float > closestSoFar = points[ 0 ];
+    double smallestDist = Utils::distance< float >( pointOfInterest, closestSoFar );
+    size_t closestIndex = 0;
+
+    for ( size_t i = 1; i < points.size(); ++i )
+    {
+        const double temp = Utils::distance< float >( pointOfInterest, points[ i ] );
+        if ( temp < smallestDist )
+        {
+            smallestDist = temp;
+            closestSoFar = points[ i ];
+            closestIndex = i;
+        }
+    }
+
+    return closestIndex;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // TEST FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
@@ -133,6 +154,31 @@ TEST( Helpers, TestBruteForceClosest )
     ASSERT_EQ( bruteForceClosest( points, pOfInterest ), p2 );
 }
 
+TEST( Helpers, TestBruteForceClosestIndex )
+{
+    Types::Point< float > p1;
+    p1.push_back( -1.0 ); // x
+    p1.push_back(  1.0 ); // y
+
+    Types::Point< float > p2;
+    p2.push_back( 0.0 ); // x
+    p2.push_back( 1.0 ); // y
+
+    Types::Point< float > p3;
+    p3.push_back( 1 ); // x
+    p3.push_back( 1 ); // y
+
+    Types::Points< float > points;
+    points.push_back( p1 );
+    points.push_back( p2 );
+    points.push_back( p3 );
+
+    Types::Point< float > pOfInterest;
+    pOfInterest.push_back( 0.0 ); // x
+    pOfInterest.push_back( 0.0 ); // y
+
+    ASSERT_EQ( bruteForceClosestIndex( points, pOfInterest ), 1u );
+}
 
 TEST( KDTree, TestZero )
 {
@@ -1190,6 +1236,89 @@ TEST( KDTREE, DeserializeTreeOnFourNodesTest )
              deserialized.root()->right()->right()->isLeaf() );
     ASSERT_EQ( sampleTree.root()->right()->right()->leafPointIndex(),
              deserialized.root()->right()->right()->leafPointIndex() );
+}
+
+TEST( KDTREE, CompleteSanity )
+{
+    TestFileGuard guard( testFile );
+
+    const std::string dataFilename = "data/sample_data.csv";
+    std::ifstream treeData( dataFilename );
+
+    ASSERT_TRUE( treeData.is_open() );
+
+    std::string line;
+    Types::Points< float > treePoints;
+
+    while ( getline ( treeData, line ) )
+    {
+        Types::Point< float > treePoint;
+
+        size_t pos = 0;
+
+        while ( true )
+        {
+            treePoint.push_back( static_cast< float >( stof( line, &pos ) ) );
+
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        treePoints.push_back( treePoint );
+    }
+    treeData.close();
+
+    KDTree< float > serializedTree( treePoints );
+    std::cout << serializedTree << std::endl;
+
+    ASSERT_TRUE( serializedTree.serialize( testFile ) );
+
+    KDTree< float > deserializedTree;
+    ASSERT_TRUE( deserializedTree.deserialize( testFile ) );
+    std::cout << deserializedTree << std::endl;
+
+    const std::string queryFilename = "data/query_data.csv";
+    std::ifstream queryData( queryFilename );
+
+    ASSERT_TRUE( queryData.is_open() );
+
+    while ( getline ( queryData, line ) )
+    {
+        Types::Point< float > queryPoint;
+
+        size_t pos = 0;
+        while ( true )
+        {
+            queryPoint.push_back( stof( line, &pos ) );
+
+            if ( line[ pos ] == ',')
+            {
+                line = line.substr( pos + 1u );
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        const size_t bruteIndex =
+                bruteForceClosestIndex( treePoints, queryPoint );
+        const size_t serializedTreeIndex =
+                serializedTree.nearestPointIndex( queryPoint ) ;
+        const size_t deserializedTreeIndex =
+                deserializedTree.nearestPointIndex( queryPoint ) ;
+
+        ASSERT_EQ( bruteIndex, serializedTreeIndex );
+        ASSERT_EQ( bruteIndex, deserializedTreeIndex );
+    }
+
+    queryData.close();
 }
 
 } // namespace
