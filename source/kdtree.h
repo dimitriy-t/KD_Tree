@@ -260,16 +260,8 @@ KDTree< T >::serialize( const std::string& filename ) const
         serializedData << '\n';
     }
 
-    // Third tree structure in postorder
-    if ( nullptr == m_root )
-    {
-        serializedData << Constants::KDTREE_EMPTY_MARKER << '\n';
-    }
-    else
-    {
-        serializedData << Constants::KDTREE_NON_EMPTY_MARKER << '\n';
-        serializeHelper( serializedData, m_root );
-    }
+    // Third serialize tree structure in postorder
+    serializeHelper( serializedData, m_root );
 
     serializedData.close();
 
@@ -279,8 +271,15 @@ KDTree< T >::serialize( const std::string& filename ) const
 template< typename T >
 void
 KDTree< T >::serializeHelper( std::fstream&                  fileStream,
-                               std::shared_ptr< KDNode< T > > root ) const
+                              std::shared_ptr< KDNode< T > > root ) const
 {
+    // Handle special case of an empty tree
+    if ( nullptr == root )
+    {
+        fileStream << Constants::KDTREE_EMPTY_MARKER << '\n';
+        return;
+    }
+
     // Handle hyperplane and leaf nodes differently
     if ( root->isLeaf() )
     {
@@ -350,13 +349,8 @@ KDTree< T >::deserialize( const std::string& filename )
     }
     m_points = points;
 
-    // Handle special-case of empty tree
-    getline ( treeData, line );
-    if ( Constants::KDTREE_NON_EMPTY_MARKER == line )
-    {
-        // Third tree structure from postorder
-        m_root = deserializeHelper( treeData );
-    }
+    // Third tree structure from postorder
+    m_root = deserializeHelper( treeData );
 
     treeData.close();
 
@@ -368,32 +362,46 @@ template< typename T >
 std::shared_ptr< KDNode< T > >
 KDTree< T >::deserializeHelper( std::fstream& fileStream )
 {
-//    // First load children
-//    std::shared_ptr< KDNode< T > > left = serializeHelper( fileStream );
-//    std::shared_ptr< KDNode< T > > right = serializeHelper( fileStream );
-//
-//    // Inspect the next node
-//
-//    std::string line;
-//    getline ( treeData, line );
-//
-//    if ( Constants::KDTREE_LEAF_MARKER == line )
-//    {
-//        size_t index = static_cast< size_t >( stof( line ) );
-//
-//    }
-//
-//    int numOfPoints = std::stoi( line );
-//
-//    if ( root->isLeaf() )
-//    {
-//        fileStream << Constants::KDTREE_LEAF_MARKER << '\n';
-//        fileStream << root->leafPointIndex()        << '\n';
-//        return;
-//    }
-//
-//    fileStream << Constants::KDTREE_HYPERPLANE_MARKER << '\n';
-//    fileStream << root->hyperplane().serialize()      << '\n';
+    // Inspect node type first
+    std::string line;
+    getline ( fileStream, line );
+
+    // Handle empty tree special case
+    if ( Constants::KDTREE_EMPTY_MARKER == line )
+    {
+        return nullptr;
+    }
+
+    // Handle Leaf type
+    if ( Constants::KDTREE_LEAF_MARKER == line )
+    {
+        getline ( fileStream, line );
+        const int index = std::stoi( line );
+
+        return std::shared_ptr< KDNode< T > >(
+                new KDNode< T >( static_cast< size_t >( index ) ) );
+    }
+
+    // Handle Hyperplane type
+    if ( Constants::KDTREE_HYPERPLANE_MARKER == line )
+    {
+        // Then load the hyperplane
+        getline( fileStream, line );
+        KDHyperplane< T > hyperplane;
+        hyperplane.deserialize( line );
+
+        // Then load children
+        std::shared_ptr <KDNode< T >> left = serializeHelper( fileStream );
+        std::shared_ptr <KDNode< T >> right = serializeHelper( fileStream );
+
+        return std::shared_ptr< KDNode< T > >(
+                new KDNode< T >( static_cast< size_t >( hyperplane,
+                                                        left,
+                                                        right ) ) );
+    }
+
+    //TODO: error handling
+
     return nullptr;
 }
 
