@@ -118,7 +118,6 @@ protected:
         // Serves as a heuristics in determining optimal hyperplane to split the
         // provided points as defined by the index array into m_points variable.
 
-
 private:
     void buildWrapper();
         // Simple helper function that is invoked once the tree is ready to
@@ -135,6 +134,18 @@ private:
             const size_t                   bestSoFarIndex ) const;
         // A recursive helper function, finds the closes point in to the
         // point of interest
+
+    void serializeHelper( std::fstream&                   fileStream,
+                          std::shared_ptr< KDNode< T > >  root ) const;
+        // A recursive helper function, writes the KD tree structure to
+        // provided file stream. This function expects a valid file
+        // stream to function properly.
+
+    void deserializeHelper( std::fstream&                   fileStream,
+                            std::shared_ptr< KDNode< T > >  root );
+        // A recursive helper function, writes the KD tree structure to
+        // provided file stream. This function expects a valid file
+        // stream to function properly.
 
     // The following allows creating of derived classes for test purposes
     // while not exposing the vital components in productions classes
@@ -224,6 +235,18 @@ KDTree< T >::serialize( const std::string& filename ) const
     std::fstream serializedData;
     serializedData.open( filename, std::fstream::out | std::fstream::trunc );
 
+    if ( !serializedData.is_open() )
+    {
+        std::cerr << "KDTree:serialize() is unable to open "
+                  << "'" << filename << "' for writing"
+                  << std::endl;
+        return false;
+    }
+
+    // First serialize number of lines
+    serializedData << m_points.size() << '\n';
+
+    // Second all the points
     for ( size_t i = 0; i < m_points.size(); ++i )
     {
         const Types::Point< T >& point = m_points[ i ];
@@ -237,9 +260,47 @@ KDTree< T >::serialize( const std::string& filename ) const
         serializedData << '\n';
     }
 
+    // Third tree structure in postorder
+    if ( nullptr == m_root )
+    {
+        serializedData << Constants::KDTREE_EMPTY_MARKER << '\n';
+    }
+    else
+    {
+        serializeHelper( serializedData, m_root );
+    }
+
     serializedData.close();
 
     return true;
+}
+
+template< typename T >
+void
+KDTree< T >::serializeHelper( std::fstream&                  fileStream,
+                               std::shared_ptr< KDNode< T > > root ) const
+{
+    // First store children
+    if ( nullptr != root->left() )
+    {
+        serializeHelper( fileStream, root->left() );
+    }
+    if ( nullptr != root->right() )
+    {
+        serializeHelper( fileStream, root->right() );
+    }
+
+    // Handle hyperplane and leaf nodes differently
+    if ( root->isLeaf() )
+    {
+        fileStream << Constants::KDTREE_LEAF_MARKER << '\n';
+        fileStream << root->leafPointIndex()        << '\n';
+        return;
+    }
+
+    fileStream << Constants::KDTREE_HYPERPLANE_MARKER << '\n';
+    fileStream << root->hyperplane().serialize()      << '\n';
+
 }
 
 template< typename T >
@@ -256,38 +317,48 @@ KDTree< T >::deserialize( const std::string& filename )
         return false;
     }
 
-    Types::Points< T > points;
-    std::string line;
+    std::cout << "Implement me" << std::endl;
+    return false;
+//    Types::Points< T > points;
+//    std::string line;
+//
+//    while ( getline ( treeData, line ) )
+//    {
+//        Types::Point< T > point;
+//        size_t pos = 0;
+//
+//        while ( true )
+//        {
+//            point.push_back( static_cast< T >( stof( line, &pos ) ) );
+//
+//            if ( line[ pos ] == ',')
+//            {
+//                line = line.substr( pos + 1u );
+//            }
+//            else
+//            {
+//                break;
+//            }
+//        }
+//
+//        points.push_back( point );
+//    }
+//
+//    treeData.close();
+//
+//    m_points = points;
+//
+//    buildWrapper();
+//
+//    return true;
+}
 
-    while ( getline ( treeData, line ) )
-    {
-        Types::Point< T > point;
-        size_t pos = 0;
-
-        while ( true )
-        {
-            point.push_back( static_cast< T >( stof( line, &pos ) ) );
-
-            if ( line[ pos ] == ',')
-            {
-                line = line.substr( pos + 1u );
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        points.push_back( point );
-    }
-
-    treeData.close();
-
-    m_points = points;
-
-    buildWrapper();
-
-    return true;
+template< typename T >
+void
+KDTree< T >::deserializeHelper( std::fstream&                  fileStream,
+                                std::shared_ptr< KDNode< T > > root )
+{
+    std::cout << "Implement me" << std::endl;
 }
 
 template< typename T >

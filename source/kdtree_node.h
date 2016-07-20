@@ -59,11 +59,6 @@ public:
     std::shared_ptr< KDNode< T > > right() const;
         // Return shared pointer to the right subtree
 
-    const Types::Point< T >& leafPoint() const;
-        // Return pointer of the point stored in KDTree that this node
-        // represents. Note that non-leaf nodes will return
-        // an empty Types::Point< T >
-
     size_t leafPointIndex() const;
         // Return index point stored in KDTree that this node
         // represents. Note that non-leaf nodes will return
@@ -94,10 +89,6 @@ private:
 
     std::shared_ptr< KDNode< T > >     m_right;
         // Right subtree
-
-    Types::Point< T >                  m_leafPoint;
-        // Pointer to leaf point in the KDTree. Note that KDNode is used to
-        // index the points in a KDTree, but does not own the memory;
 
     size_t                             m_leafPointIndex;
         // Index of leaf point in the KDTree
@@ -205,13 +196,6 @@ KDNode< T >::right() const
 }
 
 template< typename T >
-const Types::Point< T >&
-KDNode< T >::leafPoint() const
-{
-    return m_leafPoint;
-}
-
-template< typename T >
 size_t
 KDNode< T >::leafPointIndex() const
 {
@@ -280,3 +264,60 @@ std::ostream& operator<<( std::ostream& lhs, const KDNode< T >& rhs )
 } // close namespace datastructures
 
 #endif // KDTREE_NODE_H
+
+
+
+//TestHyperplane centerHyperplane( 0u, 6 );
+//TestHyperplane leftHyperplane(   1u, 2 );
+//TestHyperplane rightHyperplane(  1u, 4 );
+//
+//TestPoint upperLeft;
+//upperLeft.push_back( -6 ); // x
+//upperLeft.push_back(  2 ); // y
+//
+//TestPoint bottomLeft;
+//bottomLeft.push_back( -6 ); // x
+//bottomLeft.push_back( -2 ); // y
+//
+//TestPoint upperRight;
+//upperRight.push_back( 6 ); // x
+//upperRight.push_back( 4 ); // y
+//
+//TestPoint bottomRight;
+//bottomRight.push_back(  6 ); // x
+//bottomRight.push_back( -4 ); // y
+//
+//TestPoints sanityPoints;
+//sanityPoints.push_back( upperLeft );
+//sanityPoints.push_back( bottomLeft );
+//sanityPoints.push_back( upperRight );
+//sanityPoints.push_back( bottomRight );
+//
+//TestKDTree sanityTree( sanityPoints );
+//std::cout << sanityTree << std::endl;
+//
+//// First node must partition on x due to higher [ -6; 6 ] spread
+//ASSERT_FALSE( sanityTree.root()->isLeaf() );
+//ASSERT_TRUE(  sanityTree.root()->left()  != nullptr );
+//ASSERT_TRUE(  sanityTree.root()->right() != nullptr );
+//ASSERT_EQ(    sanityTree.root()->hyperplane(), centerHyperplane );
+//
+//// Left node must partition on x due to higher [ -2; 2 ] spread
+//ASSERT_FALSE( sanityTree.root()->left()->isLeaf() );
+//ASSERT_TRUE(  sanityTree.root()->left()->left()  != nullptr );
+//ASSERT_TRUE(  sanityTree.root()->left()->right() != nullptr );
+//ASSERT_EQ(    sanityTree.root()->left()->hyperplane(),
+//        leftHyperplane );
+//
+//ASSERT_EQ( sanityTree.root()->left()->left()->leafPointIndex(),  1u );
+//ASSERT_EQ( sanityTree.root()->left()->right()->leafPointIndex(), 0u );
+//
+//// Left node must partition on x due to higher [ -4; 4 ] spread
+//ASSERT_FALSE( sanityTree.root()->right()->isLeaf() );
+//ASSERT_TRUE(  sanityTree.root()->right()->left()  != nullptr );
+//ASSERT_TRUE(  sanityTree.root()->right()->right() != nullptr );
+//ASSERT_EQ(    sanityTree.root()->right()->hyperplane(),
+//        rightHyperplane );
+//
+//ASSERT_EQ( sanityTree.root()->right()->left()->leafPointIndex(), 3u );
+//ASSERT_EQ( sanityTree.root()->right()->right()->leafPointIndex(),2u );

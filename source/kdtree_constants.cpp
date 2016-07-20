@@ -34,5 +34,8 @@ const std::string Constants::KDTREE_HYPERPLANE_MARKER
 const std::string Constants::KDTREE_LEAF_MARKER
     = "LEAF";
 
+const std::string Constants::KDTREE_EMPTY_MARKER
+    = "EMPTY";
+
 
 } // namespace datastructures

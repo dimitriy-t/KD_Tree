@@ -1,3 +1,7 @@
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+
 #include "gtest/gtest.h"
 
 #include "kdtree_types.h"
@@ -48,6 +52,25 @@ public:
     }
 };
 
+const std::string testFile = "really_long_and_unique_test_file_name_42.txt";
+
+class TestFileGuard
+{
+public:
+    TestFileGuard( const std::string& testFileName )
+    : m_testFileName( testFileName )
+    {
+        // nothing to do here
+    }
+
+    ~TestFileGuard()
+    {
+        std::remove( m_testFileName.c_str() );
+    }
+
+private:
+    std::string   m_testFileName;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
@@ -495,5 +518,471 @@ TEST( KDTree, StressTest )
     }
 }
 
-} // namespace
+TEST( KDTREE, SerializeEmptyTreeTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
 
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    std::ifstream treeData( testFile );
+    ASSERT_TRUE( treeData.is_open() );
+
+    const std::string expected1 = "0";
+    std::string serialized1;
+    ASSERT_TRUE( getline ( treeData, serialized1 ) );
+    ASSERT_EQ( expected1, serialized1 );
+
+    std::string serialized2;
+    ASSERT_TRUE( getline ( treeData, serialized2 ) );
+    ASSERT_EQ( Constants::KDTREE_EMPTY_MARKER, serialized2 );
+
+    {
+        std::string serialized;
+        ASSERT_FALSE( getline( treeData, serialized ) );
+    }
+}
+
+TEST( KDTREE, SerializeTreeOnOneNodeTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( 1 );
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    std::ifstream treeData( testFile );
+    ASSERT_TRUE( treeData.is_open() );
+
+    {
+        const std::string expected = "1";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "1";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+
+
+    {
+        std::string serialized;
+        ASSERT_FALSE( getline( treeData, serialized ) );
+    }
+}
+
+TEST( KDTREE, SerializeTreeOnTwoNodesTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( 1 );
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 2 );
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    std::ifstream treeData( testFile );
+    ASSERT_TRUE( treeData.is_open() );
+
+    {
+        const std::string expected = "2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "1";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "1";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_HYPERPLANE_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0 2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+
+
+    {
+        std::string serialized;
+        ASSERT_FALSE( getline( treeData, serialized ) );
+    }
+}
+
+TEST( KDTREE, SerializeTreeOnThreeNodesTest )
+{
+    TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( 1 );
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 2 );
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 3 );
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    std::ifstream treeData( testFile );
+    ASSERT_TRUE( treeData.is_open() );
+
+    {
+        const std::string expected = "3";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "1";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "3";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "1";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_HYPERPLANE_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0 3";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_HYPERPLANE_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0 2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+
+
+    {
+        std::string serialized;
+        ASSERT_FALSE( getline( treeData, serialized ) );
+    }
+}
+
+TEST( KDTREE, SerializeTreeOnFourNodesTest )
+{
+    //TestFileGuard guard( testFile );
+    TestPoints treePoints;
+    {
+        TestPoint p;
+        p.push_back( -6 ); // x
+        p.push_back(  2 ); // x
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( -6 ); // x
+        p.push_back( -2 ); // x
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back( 6 ); // x
+        p.push_back( 4 ); // x
+        treePoints.push_back( p );
+    }
+    {
+        TestPoint p;
+        p.push_back(  6 ); // x
+        p.push_back( -4 ); // x
+        treePoints.push_back( p );
+    }
+
+    TestKDTree sampleTree( treePoints );
+    std::cout << sampleTree << std::endl;
+
+    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+
+    std::ifstream treeData( testFile );
+    ASSERT_TRUE( treeData.is_open() );
+
+    {
+        const std::string expected = "4";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "-6,2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "-6,-2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "6,4";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        const std::string expected = "6,-4";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "1";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_HYPERPLANE_MARKER, serialized );
+    }
+    {
+        const std::string expected = "1 2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "3";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_LEAF_MARKER, serialized );
+    }
+    {
+        const std::string expected = "2";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_HYPERPLANE_MARKER, serialized );
+    }
+    {
+        const std::string expected = "1 4";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+    {
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( Constants::KDTREE_HYPERPLANE_MARKER, serialized );
+    }
+    {
+        const std::string expected = "0 6";
+        std::string serialized;
+        ASSERT_TRUE( getline( treeData, serialized ) );
+        ASSERT_EQ( expected, serialized );
+    }
+
+
+
+    {
+    std::string serialized;
+    ASSERT_FALSE( getline( treeData, serialized ) );
+    }
+}
+
+//TEST( KDTREE, SerializeDeserializeEquivalenceTest )
+//{
+ //   TestFileGuard guard( testFile );
+//
+//    TestPoints treePoints;
+//    {
+//        TestPoint p;
+//        p.push_back( 1 );
+//        treePoints.push_back( p );
+//    }
+//    {
+//        TestPoint p;
+//        p.push_back( 2 );
+//        treePoints.push_back( p );
+//    }
+//    {
+//        TestPoint p;
+//        p.push_back( 3 );
+//        treePoints.push_back( p );
+//    }
+//
+//    TestKDTree sampleTree( treePoints );
+//    std::cout << sampleTree << std::endl;
+//
+//    ASSERT_TRUE( sampleTree.serialize( testFile ) );
+//    TestKDTree deserializedTree;
+//
+//    ASSERT_TRUE( deserializedTree.deserialize( testFile ) );
+//    std::cout << deserializedTree << std::endl;
+//
+//    ASSERT_EQ( sampleTree, deserializedTree );
+//}
+
+} // namespace

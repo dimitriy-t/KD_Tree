@@ -46,6 +46,10 @@ struct Constants {
     static const std::string KDTREE_LEAF_MARKER;
         // Denotes an upcoming leaf node line in a serialized
         // file stream
+
+    static const std::string KDTREE_EMPTY_MARKER;
+        // Denotes a special-case empty node line in a serialized
+        // file stream
 };
 
 } // namespace datastructures
