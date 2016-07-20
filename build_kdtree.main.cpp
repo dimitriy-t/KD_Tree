@@ -11,7 +11,7 @@ const string defaultTreeFile = "kdtree.serialized";
 
 static void printHelp()
 {
-    cout << "Usage: query_kdtree tree_file query_file answers_file                      " << endl;
+    cout << "Usage: build_kdtree sample_file tree_file                                  " << endl;
     cout << "                                                                           " << endl;
     cout << "    Where :                                                                " << endl;
     cout << "                                                                           " << endl;
@@ -19,7 +19,7 @@ static void printHelp()
     cout << "                           as prescribed by the assignment                 " << endl;
     cout << "                                                                           " << endl;
     cout << "      tree_file          - path to file where KDTree will be serialized    " << endl;
-    cout << "                           Default value is '" << defaultTreeFile << "     " << endl;
+    cout << "                           Default value is '" << defaultTreeFile << "'    " << endl;
     cout << "                           Note that all contents of an existing file will " << endl;
     cout << "                           be erased.                                      " << endl;
 }

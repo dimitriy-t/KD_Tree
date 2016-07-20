@@ -1,0 +1,72 @@
+DEPENDENCIES AND BUILDING SOFTWARE
+
+    This code base depends on only gtest/pthread for unit tests.
+
+    Main library code, residiging in the 'source' subfolder, has
+    no dependencies besides g++/c++11/make as specified by the 
+    assignment.
+
+    In order to build build_kdtree executeble type :
+    make build_kdtree
+
+    In order to build query_kdtree executable type :
+    make query_kdtree
+
+    Executing :
+    make all
+
+    will build build_kdtree/query_kdtree/kdtree.unit.t
+
+    Note that my makefiles supports :
+    make cleanall
+
+RUNNING KDTREE DRIVERS
+
+BUILD_KDTREE
+
+    As per assignment specification, build_kdtree is to be executed
+    in the following manner
+
+    Usage: query_kdtree sample_file tree_file                                  
+                                                                           
+        Where :                                                                
+                                                                           
+          sample_file        - path CSV file containing sample points data     
+                               as prescribed by the assignment                 
+                                                                           
+          tree_file          - path to file where KDTree will be serialized    
+                               Default value is 'kdtree.serialized'    
+                               Note that all contents of an existing file will 
+                               be erased.   
+
+    Note that running build_kdtree with erroneous number of arguments will
+    result in usage help listed above.
+
+QUERY_KDTREE
+
+    As per assignment specification, query_kdtree is to be executed
+    in the following manner
+
+    Usage: query_kdtree tree_file query_file answers_file                      
+                                                                           
+        Where :                                                                
+          tree_file          - path to file produced by successful             
+                               invocation of build_kdtree                      
+                                                             
+          query_file         - path CSV file containing query points data      
+                               as prescribed by the assignment                 
+                                                                           
+          answers_file       - path CSV file containing answers to queries     
+                               specified by query_file against tree specified  
+                               by tree_file. Default value is 'results.csv'
+                               Note that all contents of an existing file will 
+                               be erased. 
+
+    Note that running query_kdtree with erroneous number of arguments will
+    result in usage help listed above.
+
+UNIT TEST
+
+    Unit tests executable kdtree.unit.t. supports all the standard gtest execution
+    parameters. It may be, however, executed without any. It does not modify
+    any files in the root, source, or data directories.
